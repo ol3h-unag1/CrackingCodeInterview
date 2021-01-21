@@ -832,7 +832,11 @@ bool IsPermutation( std::string str1, std::string str2 )
    // std::cout << IsPermutation( "?123!asZZd-@", "Z?s3!d2-1a@Z" ) << std::endl;
 }
 
+
+std::vector< int > v1{ 1, 2, 3 };
+std::vector< int > v2{ 3, 2, 1, 0 };
+
 int main()
 {
-
+   std::cout << ( ( v1.size() - v2.size() ) == -1 ) << std::endl;
 }
