@@ -46,3 +46,7 @@ Debug*
 LabConso*
 *.sqlite
 *.json
+CrackingCodeInterview.sln
+.vs/CrackingCodeInterview/v16/.suo
+*.db
+*.ipch
