@@ -19,102 +19,102 @@
 std::size_t const G_lowerBound = 1;
 std::size_t const G_upperBound = 1000;
 std::size_t const G_power = 3;
- 
-struct ABCD 
-{
-    ABCD( std::size_t a, std::size_t b, std::size_t c, std::size_t d )
-        : _a( a )
-        , _b( b )
-        , _c( c )
-        , _d( d )
-    {}
 
-    std::size_t _a;
-    std::size_t _b;
-    std::size_t _c;
-    std::size_t _d;
+struct ABCD
+{
+   ABCD( std::size_t a, std::size_t b, std::size_t c, std::size_t d )
+      : _a( a )
+      , _b( b )
+      , _c( c )
+      , _d( d )
+   {}
+
+   std::size_t _a;
+   std::size_t _b;
+   std::size_t _c;
+   std::size_t _d;
 };
 std::vector< ABCD > foo()
 {
-    std::vector< ABCD > solutions;
-    for( auto a = G_lowerBound; a < G_upperBound; ++a )
-    {
-        for( auto b = G_lowerBound; b < G_upperBound; ++b )
-        {
-            for( auto c = G_lowerBound; c < G_upperBound; ++c )
+   std::vector< ABCD > solutions;
+   for( auto a = G_lowerBound; a < G_upperBound; ++a )
+   {
+      for( auto b = G_lowerBound; b < G_upperBound; ++b )
+      {
+         for( auto c = G_lowerBound; c < G_upperBound; ++c )
+         {
+            for( auto d = G_lowerBound; d < G_upperBound; ++d )
             {
-                for( auto d = G_lowerBound; d < G_upperBound; ++d )
-                {
-                    std::cout << a << " " << b << " " << c << " " << d << std::endl;
+               std::cout << a << " " << b << " " << c << " " << d << std::endl;
 
 
-                    if( a == b == c == d )
-                    {
-                        solutions.emplace_back( a, b, c, d );
-                        continue;
-                    }
+               if( a == b == c == d )
+               {
+                  solutions.emplace_back( a, b, c, d );
+                  continue;
+               }
 
-                    if( ( ( a == c ) && ( b == d ) ) || ( ( a == d ) && ( b == c ) ) )
-                    {
-                        solutions.emplace_back( a, b, c, d );
-                        continue;
-                    }
+               if( ( ( a == c ) && ( b == d ) ) || ( ( a == d ) && ( b == c ) ) )
+               {
+                  solutions.emplace_back( a, b, c, d );
+                  continue;
+               }
 
-                    if( std::pow( a, G_power ) + std::pow( b, G_power ) == std::pow( c, G_power ) + std::pow( d, G_power ) )
-                    {
-                        solutions.emplace_back( a, b, c, d );
-                    }
-                }
+               if( std::pow( a, G_power ) + std::pow( b, G_power ) == std::pow( c, G_power ) + std::pow( d, G_power ) )
+               {
+                  solutions.emplace_back( a, b, c, d );
+               }
             }
-        }
-    }
+         }
+      }
+   }
 
-    return solutions;
+   return solutions;
 }
 
 /// PERMUTATION
 void Permutation( std::string str, std::string oldPrefix )
 {
-    if( str.empty() )
-    {
-        std::cout << oldPrefix << std::endl;
-    }
-    else
-    {
-        for( std::size_t index = 0; index < str.size(); ++index )
-        {
-            auto reminder1stPart = str.substr( 0, index );
-            auto reminder2ndPart = str.substr( index + 1 );
-            auto reminder = reminder1stPart + reminder2ndPart;
-            auto newPrefix = oldPrefix + str[ index ];
-            Permutation( reminder, newPrefix );
-        }
-    }
+   if( str.empty() )
+   {
+      std::cout << oldPrefix << std::endl;
+   }
+   else
+   {
+      for( std::size_t index = 0; index < str.size(); ++index )
+      {
+         auto reminder1stPart = str.substr( 0, index );
+         auto reminder2ndPart = str.substr( index + 1 );
+         auto reminder = reminder1stPart + reminder2ndPart;
+         auto newPrefix = oldPrefix + str[ index ];
+         Permutation( reminder, newPrefix );
+      }
+   }
 }
 void Permutation( std::string str )
 {
-    Permutation( str, "" );
+   Permutation( str, "" );
 }
 
 /// powers of 2
 int powersOf2( int n )
 {
-    if( n < 1 )
-    {
-        return 0;
-    }
-    
-    if( n == 1 )
-    {
-        std::cout << n << std::endl;
-        return 1;
-    }
+   if( n < 1 )
+   {
+      return 0;
+   }
 
-    int prev = powersOf2( n / 2 );
-    int curr = prev * 2;
-    std::cout << curr << std::endl;
+   if( n == 1 )
+   {
+      std::cout << n << std::endl;
+      return 1;
+   }
 
-    return curr;
+   int prev = powersOf2( n / 2 );
+   int curr = prev * 2;
+   std::cout << curr << std::endl;
+
+   return curr;
 }
 
 /// recursion called from cycle
@@ -123,28 +123,28 @@ std::size_t jobCallCounter = 0;
 std::size_t jobsDoneCounter = 0;
 void doJob( std::size_t jobSize )
 {
-    jobCallCounter++;
-    for( std::size_t i = 0; i < jobSize; ++i )
-    {
-        jobsDoneCounter++;
-    }
+   jobCallCounter++;
+   for( std::size_t i = 0; i < jobSize; ++i )
+   {
+      jobsDoneCounter++;
+   }
 }
 std::size_t recursiveCallCounter = 0;
 std::size_t const cycleSize = 3;
 void recursiveCall( std::size_t recursionNumber )
 {
-    recursiveCallCounter++;
-    if( !recursionNumber )
-    {
-        doJob( jobSize );
-    }
-    else
-    {
-        for( std::size_t ñ = 0; ñ < cycleSize; ++ñ )
-        {
-            recursiveCall( recursionNumber - 1 );
-        }
-    }
+   recursiveCallCounter++;
+   if( !recursionNumber )
+   {
+      doJob( jobSize );
+   }
+   else
+   {
+      for( std::size_t ñ = 0; ñ < cycleSize; ++ñ )
+      {
+         recursiveCall( recursionNumber - 1 );
+      }
+   }
 }
 //recursiveCall( 4 );
 //std::cout << recursiveCallCounter << " recursive calls happened" << std::endl;
@@ -157,140 +157,140 @@ std::vector< int > const sourceNumbers = { 12, 31, 25, 12, 43, 64, 47, 56, 75, 6
 template< class HeapType1, class HeapType2 >
 void BalanceHeapsFree( HeapType1& from, HeapType2& to )
 {
-    if( from.size() < to.size() )
-    {
-        return;
-    }
+   if( from.size() < to.size() )
+   {
+      return;
+   }
 
-    while( from.size() - to.size() > 1 )
-    {
-        auto fromTop = from.top();
-        to.push( fromTop );
-        from.pop();
-    }
+   while( from.size() - to.size() > 1 )
+   {
+      auto fromTop = from.top();
+      to.push( fromTop );
+      from.pop();
+   }
 }
 double ArrayMedian( std::vector< int > const& sourceNumbers )
 {
-    if( sourceNumbers.empty() )
-    {
-        return std::numeric_limits< double >::max();
-    }
-    if( sourceNumbers.size() == 1 )
-    {
-        return sourceNumbers.front();
-    }
+   if( sourceNumbers.empty() )
+   {
+      return std::numeric_limits< double >::max();
+   }
+   if( sourceNumbers.size() == 1 )
+   {
+      return sourceNumbers.front();
+   }
 
-    std::priority_queue< int > smallerHalf_MaxHeap;
-    std::priority_queue< int, std::vector< int >, std::greater< int > > biggerHalf_MinHeap;
-    if( sourceNumbers[ 0 ] < sourceNumbers[ 1 ] )
-    {
-        smallerHalf_MaxHeap.push( sourceNumbers[ 0 ] );
-        biggerHalf_MinHeap.push( sourceNumbers[ 1 ] );
-    }
-    else
-    {
-        smallerHalf_MaxHeap.push( sourceNumbers[ 1 ] );
-        biggerHalf_MinHeap.push( sourceNumbers[ 0 ] );
-    }
-    std::size_t index = 2; // start from 3rd value
-    for( ; index < sourceNumbers.size(); ++index )
-    {
-        auto const number = sourceNumbers[ index ];
-        if( number <= smallerHalf_MaxHeap.top() )
-        {
-            smallerHalf_MaxHeap.push( number );
-            BalanceHeapsFree( smallerHalf_MaxHeap, biggerHalf_MinHeap );
-        }
-        else
-        {
-            biggerHalf_MinHeap.push( number );
-            BalanceHeapsFree( biggerHalf_MinHeap, smallerHalf_MaxHeap );
-        }             
-    } 
+   std::priority_queue< int > smallerHalf_MaxHeap;
+   std::priority_queue< int, std::vector< int >, std::greater< int > > biggerHalf_MinHeap;
+   if( sourceNumbers[ 0 ] < sourceNumbers[ 1 ] )
+   {
+      smallerHalf_MaxHeap.push( sourceNumbers[ 0 ] );
+      biggerHalf_MinHeap.push( sourceNumbers[ 1 ] );
+   }
+   else
+   {
+      smallerHalf_MaxHeap.push( sourceNumbers[ 1 ] );
+      biggerHalf_MinHeap.push( sourceNumbers[ 0 ] );
+   }
+   std::size_t index = 2; // start from 3rd value
+   for( ; index < sourceNumbers.size(); ++index )
+   {
+      auto const number = sourceNumbers[ index ];
+      if( number <= smallerHalf_MaxHeap.top() )
+      {
+         smallerHalf_MaxHeap.push( number );
+         BalanceHeapsFree( smallerHalf_MaxHeap, biggerHalf_MinHeap );
+      }
+      else
+      {
+         biggerHalf_MinHeap.push( number );
+         BalanceHeapsFree( biggerHalf_MinHeap, smallerHalf_MaxHeap );
+      }
+   }
 
-    if( smallerHalf_MaxHeap.size() == biggerHalf_MinHeap.size() )
-    {
-        return ( smallerHalf_MaxHeap.top() + biggerHalf_MinHeap.top() ) / static_cast< double >( 2 );
-    }
+   if( smallerHalf_MaxHeap.size() == biggerHalf_MinHeap.size() )
+   {
+      return ( smallerHalf_MaxHeap.top() + biggerHalf_MinHeap.top() ) / static_cast< double >( 2 );
+   }
 
-    if( smallerHalf_MaxHeap.size() < biggerHalf_MinHeap.size() )
-    {
-        return biggerHalf_MinHeap.top();
-    }
-    else
-    {
-        return smallerHalf_MaxHeap.top();
-    }
+   if( smallerHalf_MaxHeap.size() < biggerHalf_MinHeap.size() )
+   {
+      return biggerHalf_MinHeap.top();
+   }
+   else
+   {
+      return smallerHalf_MaxHeap.top();
+   }
 }
 class Median
 {
 public:
-    explicit Median( int number1, int number2 )
-    {
-        if( number2 < number1 )
-        {
-            std::swap( number1, number2 );
-        }
+   explicit Median( int number1, int number2 )
+   {
+      if( number2 < number1 )
+      {
+         std::swap( number1, number2 );
+      }
 
-        smallerHalf_MaxHeap.push( number1 );
-        biggerHalf_MinHeap.push( number2 );
-    }
+      smallerHalf_MaxHeap.push( number1 );
+      biggerHalf_MinHeap.push( number2 );
+   }
 
 public:
 
-    double Push( int number )
-    {
-        if( number <= smallerHalf_MaxHeap.top() )
-        {
-            smallerHalf_MaxHeap.push( number );
-            BalanceHeaps( smallerHalf_MaxHeap, biggerHalf_MinHeap );
-        }
-        else
-        {
-            biggerHalf_MinHeap.push( number );
-            BalanceHeaps( biggerHalf_MinHeap, smallerHalf_MaxHeap );
-        }
+   double Push( int number )
+   {
+      if( number <= smallerHalf_MaxHeap.top() )
+      {
+         smallerHalf_MaxHeap.push( number );
+         BalanceHeaps( smallerHalf_MaxHeap, biggerHalf_MinHeap );
+      }
+      else
+      {
+         biggerHalf_MinHeap.push( number );
+         BalanceHeaps( biggerHalf_MinHeap, smallerHalf_MaxHeap );
+      }
 
-        return GetMedian();
-    }
+      return GetMedian();
+   }
 
 private:
-    template< class HeapType1, class HeapType2 >
-    void BalanceHeaps( HeapType1& from, HeapType2& to )
-    {
-        if( from.size() < to.size() )
-        {
-            return;
-        }
+   template< class HeapType1, class HeapType2 >
+   void BalanceHeaps( HeapType1& from, HeapType2& to )
+   {
+      if( from.size() < to.size() )
+      {
+         return;
+      }
 
-        while( from.size() - to.size() > 1 )
-        {
-            auto fromTop = from.top();
-            to.push( fromTop );
-            from.pop();
-        }
-    }
+      while( from.size() - to.size() > 1 )
+      {
+         auto fromTop = from.top();
+         to.push( fromTop );
+         from.pop();
+      }
+   }
 
-    double GetMedian() const 
-    {
-        if( smallerHalf_MaxHeap.size() == biggerHalf_MinHeap.size() )
-        {
-            return static_cast< double >( smallerHalf_MaxHeap.top() + biggerHalf_MinHeap.top() ) / 2.0;
-        }
+   double GetMedian() const
+   {
+      if( smallerHalf_MaxHeap.size() == biggerHalf_MinHeap.size() )
+      {
+         return static_cast< double >( smallerHalf_MaxHeap.top() + biggerHalf_MinHeap.top() ) / 2.0;
+      }
 
-        if( smallerHalf_MaxHeap.size() < biggerHalf_MinHeap.size() )
-        {
-            return biggerHalf_MinHeap.top();
-        }
-        else
-        {
-            return smallerHalf_MaxHeap.top();
-        }
-    }
+      if( smallerHalf_MaxHeap.size() < biggerHalf_MinHeap.size() )
+      {
+         return biggerHalf_MinHeap.top();
+      }
+      else
+      {
+         return smallerHalf_MaxHeap.top();
+      }
+   }
 
-private: 
-    std::priority_queue< int > smallerHalf_MaxHeap;
-    std::priority_queue< int, std::vector< int >, std::greater< int > > biggerHalf_MinHeap;
+private:
+   std::priority_queue< int > smallerHalf_MaxHeap;
+   std::priority_queue< int, std::vector< int >, std::greater< int > > biggerHalf_MinHeap;
 };
 
 
@@ -420,126 +420,414 @@ std::vector< std::string > words
 };
 std::string JoinWords( std::vector< std::string > const& words )
 {
-    std::string sentence = "";
-    for( auto const& w : words )
-    {
-        sentence.append( w );
-    }
+   std::string sentence = "";
+   for( auto const& w : words )
+   {
+      sentence.append( w );
+   }
 
-    return sentence;
+   return sentence;
 }
 std::string JoinWordsBad( std::vector< std::string > const& words )
 {
-    std::string sentence = "";
-    for( auto const& w : words )
-    {
-        sentence += w;
-    }
+   std::string sentence = "";
+   for( auto const& w : words )
+   {
+      sentence += w;
+   }
 
-    return sentence;
+   return sentence;
 }
 
 /// Execution time check
 template< typename JobType >
 void ExecutionTimeCheck( JobType job )
 {
-    auto t1 = std::chrono::high_resolution_clock::now();
-    job();
-    auto t2 = std::chrono::high_resolution_clock::now();
-    std::cout << "job execution took " << std::chrono::duration_cast< std::chrono::microseconds >( t2 - t1 ).count() << " microseconds. " << std::endl;
+   auto t1 = std::chrono::high_resolution_clock::now();
+   job();
+   auto t2 = std::chrono::high_resolution_clock::now();
+   std::cout << "job execution took " << std::chrono::duration_cast< std::chrono::microseconds >( t2 - t1 ).count() << " microseconds. " << std::endl;
 }
 template< typename JobType, typename ... Args >
 void ExecutionTimeCheck( JobType job, Args&& ... args )
 {
-    ExecutionTimeCheck( [ & ](){ job( std::forward< Args... >( args... ) ); } );
+   ExecutionTimeCheck( [&]() { job( std::forward< Args... >( args... ) ); } );
 }
 
-// replace spaces
+/// replace spaces
 bool ReplaceSpaces( char* str, int strLength, int bufferSize )
 {
-    int spaceCount = 0;
-    int index = 0;   
-    for( int i = 0; i < strLength; ++i )
-    {
-        if( str[ i ] == ' ' )
-        {
-            spaceCount++;
-        }
-    }
+   int spaceCount = 0;
+   int index = 0;
+   for( int i = 0; i < strLength; ++i )
+   {
+      if( str[ i ] == ' ' )
+      {
+         spaceCount++;
+      }
+   }
 
-    index = strLength + spaceCount * 2;
-    if( index != bufferSize )
-    {
-        return false;
-    }
-    
-    str[ index-- ] = '\0';
-    for( int i = strLength - 1; i >= 0; --i )
-    {
-        if( str[ i ] == ' ' )
-        {
-            str[ index ] = 'X';
-            str[ index - 1 ] = 'Y';
-            str[ index - 2 ] = 'Z';
-            index -= 3;
-        }
-        else
-        {
-            str[ index-- ] = str[ i ];
-        }
-    }
+   index = strLength + spaceCount * 2;
+   if( index != bufferSize )
+   {
+      return false;
+   }
 
-    return true;
+   str[ index-- ] = '\0';
+   for( int i = strLength - 1; i >= 0; --i )
+   {
+      if( str[ i ] == ' ' )
+      {
+         str[ index ] = 'X';
+         str[ index - 1 ] = 'Y';
+         str[ index - 2 ] = 'Z';
+         index -= 3;
+      }
+      else
+      {
+         str[ index-- ] = str[ i ];
+      }
+   }
 
-    //int const size = 16;
-    //char* str = new char[ size + 1 ];
-    //str[ 0 ] = 'a';
-    //str[ 1 ] = 'b';
-    //str[ 2 ] = ' ';
-    //str[ 3 ] = 'c';
-    //str[ 4 ] = ' ';
-    //str[ 5 ] = ' ';
-    //str[ 6 ] = ' ';
-    //str[ 7 ] = 'd';
-    //str[ 8 ] = '\0';
-    //
-    //std::cout << str << std::endl;
-    //ReplaceSpaces( str, 8, size );
-    //std::cout << str << std::endl;
-    //delete[] str;
-    //str = nullptr;
+   return true;
+
+   //int const size = 16;
+   //char* str = new char[ size + 1 ];
+   //str[ 0 ] = 'a';
+   //str[ 1 ] = 'b';
+   //str[ 2 ] = ' ';
+   //str[ 3 ] = 'c';
+   //str[ 4 ] = ' ';
+   //str[ 5 ] = ' ';
+   //str[ 6 ] = ' ';
+   //str[ 7 ] = 'd';
+   //str[ 8 ] = '\0';
+   //
+   //std::cout << str << std::endl;
+   //ReplaceSpaces( str, 8, size );
+   //std::cout << str << std::endl;
+   //delete[] str;
+   //str = nullptr;
 }
 bool ReplaceSpaces( std::string& source, std::string const replacer )
 {
-    if( replacer.empty() || source.empty() )
-        return false;
+   if( replacer.empty() || source.empty() )
+      return false;
 
-    int spaces = 0;
-    for( auto const& letter : source )
-        if( letter == ' ' )
-            spaces++;
+   int spaces = 0;
+   for( auto const& letter : source )
+      if( letter == ' ' )
+         spaces++;
 
-    auto const originalSrcSize = source.size();
-    source.resize( source.size() + spaces * ( replacer.size() - 1 ) );
+   auto const originalSrcSize = source.size();
+   source.resize( source.size() + spaces * ( replacer.size() - 1 ) );
 
-    for( int origReversedIndex = originalSrcSize - 1, reversedIndex = source.size() - 1; 
-         origReversedIndex >= 0 && reversedIndex >= 0; 
-         --origReversedIndex )
-    {
-        if( source[ origReversedIndex ] == ' ' )
-        {
-            for( int k = replacer.size() - 1; k >= 0; --k )
-            {
-                source[ reversedIndex-- ] = replacer[ k ];
-            }
-        }
-        else
-        {
-            source[ reversedIndex-- ] = source[ origReversedIndex ];
-        }
-    }
-    
-    return true;
+   for( int origReversedIndex = originalSrcSize - 1, reversedIndex = source.size() - 1;
+      origReversedIndex >= 0 && reversedIndex >= 0;
+      --origReversedIndex )
+   {
+      if( source[ origReversedIndex ] == ' ' )
+      {
+         for( int k = replacer.size() - 1; k >= 0; --k )
+         {
+            source[ reversedIndex-- ] = replacer[ k ];
+         }
+      }
+      else
+      {
+         source[ reversedIndex-- ] = source[ origReversedIndex ];
+      }
+   }
+
+   return true;
+}
+
+/// check if one string is permutation of another in O(N), where N is lengths of the strings
+int CharToPrime( unsigned char uc )
+{
+   static std::vector< int > const primes256
+   {
+      2,
+      3,
+      5,
+      7,
+      11,
+      13,
+      17,
+      19,
+      23,
+      29,
+      31,
+      37,
+      41,
+      43,
+      47,
+      53,
+      59,
+      61,
+      67,
+      71,
+      73,
+      79,
+      83,
+      89,
+      97,
+      101,
+      103,
+      107,
+      109,
+      113,
+      127,
+      131,
+      137,
+      139,
+      149,
+      151,
+      157,
+      163,
+      167,
+      173,
+      179,
+      181,
+      191,
+      193,
+      197,
+      199,
+      211,
+      223,
+      227,
+      229,
+      233,
+      239,
+      241,
+      251,
+      257,
+      263,
+      269,
+      271,
+      277,
+      281,
+      283,
+      293,
+      307,
+      311,
+      313,
+      317,
+      331,
+      337,
+      347,
+      349,
+      353,
+      359,
+      367,
+      373,
+      379,
+      383,
+      389,
+      397,
+      401,
+      409,
+      419,
+      421,
+      431,
+      433,
+      439,
+      443,
+      449,
+      457,
+      461,
+      463,
+      467,
+      479,
+      487,
+      491,
+      499,
+      503,
+      509,
+      521,
+      523,
+      541,
+      547,
+      557,
+      563,
+      569,
+      571,
+      577,
+      587,
+      593,
+      599,
+      601,
+      607,
+      613,
+      617,
+      619,
+      631,
+      641,
+      643,
+      647,
+      653,
+      659,
+      661,
+      673,
+      677,
+      683,
+      691,
+      701,
+      709,
+      719,
+      727,
+      733,
+      739,
+      743,
+      751,
+      757,
+      761,
+      769,
+      773,
+      787,
+      797,
+      809,
+      811,
+      821,
+      823,
+      827,
+      829,
+      839,
+      853,
+      857,
+      859,
+      863,
+      877,
+      881,
+      883,
+      887,
+      907,
+      911,
+      919,
+      929,
+      937,
+      941,
+      947,
+      953,
+      967,
+      971,
+      977,
+      983,
+      991,
+      997,
+      1009,
+      1013,
+      1019,
+      1021,
+      1031,
+      1033,
+      1039,
+      1049,
+      1051,
+      1061,
+      1063,
+      1069,
+      1087,
+      1091,
+      1093,
+      1097,
+      1103,
+      1109,
+      1117,
+      1123,
+      1129,
+      1151,
+      1153,
+      1163,
+      1171,
+      1181,
+      1187,
+      1193,
+      1201,
+      1213,
+      1217,
+      1223,
+      1229,
+      1231,
+      1237,
+      1249,
+      1259,
+      1277,
+      1279,
+      1283,
+      1289,
+      1291,
+      1297,
+      1301,
+      1303,
+      1307,
+      1319,
+      1321,
+      1327,
+      1361,
+      1367,
+      1373,
+      1381,
+      1399,
+      1409,
+      1423,
+      1427,
+      1429,
+      1433,
+      1439,
+      1447,
+      1451,
+      1453,
+      1459,
+      1471,
+      1481,
+      1483,
+      1487,
+      1489,
+      1493,
+      1499,
+      1511,
+      1523,
+      1531,
+      1543,
+      1549,
+      1553,
+      1559,
+      1567,
+      1571,
+      1579,
+      1583,
+      1597,
+      1601,
+      1607,
+      1609,
+      1613,
+      1619
+   };
+   return primes256[ uc ];
+}
+bool IsPermutation( std::string str1, std::string str2 )
+{
+   if( str1.size() != str2.size() )
+   {
+      return false;
+   }
+
+   if( str1.empty() || str2.empty() )
+   {
+      return false;
+   }
+
+   int product1 = 1;
+   int product2 = 1;
+
+   for( int i = 0; i < str1.size(); ++i )
+   {
+      product1 *= CharToPrime( str1[ i ] );
+      product2 *= CharToPrime( str2[ i ] );
+   }
+
+   return product1 == product2;
 }
 
 
