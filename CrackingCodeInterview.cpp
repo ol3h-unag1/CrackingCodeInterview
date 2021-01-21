@@ -828,10 +828,12 @@ bool IsPermutation( std::string str1, std::string str2 )
    }
 
    return product1 == product2;
+
+   // std::cout << IsPermutation( "?123!asZZd-@", "Z?s3!d2-1a@Z" ) << std::endl;
 }
 
 
 int main()
 {
-
+   std::cout << IsPermutation( "?123!asZZd-@", "Z?s3!d2-1a@Z" ) << std::endl;
 }
