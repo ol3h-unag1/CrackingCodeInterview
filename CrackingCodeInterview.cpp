@@ -34,7 +34,7 @@ struct ABCD
    std::size_t _c;
    std::size_t _d;
 };
-std::vector< ABCD > foo()
+std::vector< ABCD > SumsOfCubes()
 {
    std::vector< ABCD > solutions;
    for( auto a = G_lowerBound; a < G_upperBound; ++a )
@@ -832,8 +832,7 @@ bool IsPermutation( std::string str1, std::string str2 )
    // std::cout << IsPermutation( "?123!asZZd-@", "Z?s3!d2-1a@Z" ) << std::endl;
 }
 
-
 int main()
 {
-   std::cout << IsPermutation( "?123!asZZd-@", "Z?s3!d2-1a@Z" ) << std::endl;
+
 }
