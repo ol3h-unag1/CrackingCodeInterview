@@ -13,7 +13,7 @@
 
 #include <chrono>
 
-
+#include "List.hpp"
 
 /// sums of cubes
 std::size_t const G_lowerBound = 1;
@@ -821,7 +821,7 @@ bool IsPermutation( std::string str1, std::string str2 )
    int product1 = 1;
    int product2 = 1;
 
-   for( int i = 0; i < str1.size(); ++i )
+   for( std::size_t i = 0; i < str1.size(); ++i )
    {
       product1 *= CharToPrime( str1[ i ] );
       product2 *= CharToPrime( str2[ i ] );
@@ -832,11 +832,6 @@ bool IsPermutation( std::string str1, std::string str2 )
    // std::cout << IsPermutation( "?123!asZZd-@", "Z?s3!d2-1a@Z" ) << std::endl;
 }
 
-
-std::vector< int > v1{ 1, 2, 3 };
-std::vector< int > v2{ 3, 2, 1, 0 };
-
 int main()
 {
-   std::cout << ( ( v1.size() - v2.size() ) == -1 ) << std::endl;
 }
