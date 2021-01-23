@@ -48,7 +48,7 @@ private:
    {}
 
    explicit SingleLinkedNode( DataPtr data )
-      : _next( nullptr_t )
+      : _next( nullptr )
       , _data( data )
    {}
 
@@ -61,7 +61,8 @@ public:
    static 
    NodePtr CreateNode( DataPtr data )
    {
-      return nullptr;      
+      //return nullptr;      
+      return std::make_shared< MakeSharedEnabler >( data );
    }
 
 public:
