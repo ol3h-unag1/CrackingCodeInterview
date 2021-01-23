@@ -14,6 +14,7 @@
 #include <chrono>
 
 #include "List.hpp"
+#include "Random.hpp"
 
 /// sums of cubes
 std::size_t const G_lowerBound = 1;
@@ -832,6 +833,11 @@ bool IsPermutation( std::string str1, std::string str2 )
    // std::cout << IsPermutation( "?123!asZZd-@", "Z?s3!d2-1a@Z" ) << std::endl;
 }
 
+template< class DataType >
+using Node = MyDataStructuresImpl::SingleLinkedNode< DataType >;
+
+
 int main()
 {
+   auto head = Node< int >::CreateNode( std::make_shared< int >( RandomInt( -50, 50 ) ) );
 }

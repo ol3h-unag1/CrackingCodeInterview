@@ -2,31 +2,78 @@
 
 #include <memory>
 
+#include <memory>
+
+// class A {
+// public:
+//    static shared_ptr<A> Create();
+// 
+// private:
+//    A() {}
+// 
+//    struct MakeSharedEnabler;
+// };
+// 
+// struct A::MakeSharedEnabler : public A {
+//    MakeSharedEnabler() : A() {
+//    }
+// };
+// 
+// shared_ptr<A> A::Create() {
+//    return make_shared<MakeSharedEnabler>();
+// }
+
 namespace MyDataStructuresImpl
 {
 
+
 template< class DataType >
-class List
+class SingleLinkedNode
 {
+private:
+   using DataPtr = std::shared_ptr< DataType >;
+   using NodePtr = std::shared_ptr< SingleLinkedNode >;
 
-public:
-   template< class DataType >
-   class Node
+private:
+   struct MakeSharedEnabler : SingleLinkedNode< DataType >
    {
-      friend class List< DataType >;
-
-   private:
-      Node* GetNext() const { return _next; }
-      Node* SetNext( Node* n ) { _next = n; }      
-      std::shared_ptr< DataType > GetData() const { return _data; };
-
-   private:
-      Node* _next;
-      std::shared_ptr< DataType > _data;
+      MakeSharedEnabler( DataPtr data ) : SingleLinkedNode( data ) {}
+      MakeSharedEnabler( NodePtr next, DataPtr data ) : SingleLinkedNode( next, data ) {}
    };
 
 private:
-   Node< DataType > _head;
+   SingleLinkedNode()
+      : _next( nullptr )
+      , _data( nullptr )
+   {}
+
+   explicit SingleLinkedNode( DataPtr data )
+      : _next( nullptr_t )
+      , _data( data )
+   {}
+
+   explicit SingleLinkedNode( NodePtr next, DataPtr data )
+      : _next( next )
+      , _data( data )
+   {}
+
+public:   
+   static 
+   NodePtr CreateNode( DataPtr data )
+   {
+      return nullptr;      
+   }
+
+public:
+   NodePtr GetNext() const { return _next; }
+   void SetNext( NodePtr next ) { _next = next; }
+
+   DataPtr GetData() const { return _data; };
+
+private:
+   NodePtr _next;
+   DataPtr _data;
 };
+
 
 } // end of namespace MyDataStructuresImpl
