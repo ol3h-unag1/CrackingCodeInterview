@@ -839,5 +839,20 @@ using Node = MyDataStructuresImpl::SingleLinkedNode< DataType >;
 
 int main()
 {
+   int const listSize = 15;
    auto head = Node< int >::CreateNode( std::make_shared< int >( RandomInt( -50, 50 ) ) );
+   auto listIterator = head;
+
+   for( int i = 1; i < listSize; ++i )
+   {
+      listIterator->SetNext( Node< int >::CreateNode( std::make_shared< int >( RandomInt( -50, 50 ) ) ) );
+      listIterator = listIterator->GetNext();
+   }
+
+   listIterator = head;
+   while( listIterator )
+   {
+      std::cout << *listIterator->GetData() << " ";
+      listIterator = listIterator->GetNext();
+   }
 }
