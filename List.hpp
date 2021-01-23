@@ -47,10 +47,6 @@ private:
       , _data( data )
    {}
 
-   explicit SingleLinkedNode( NodePtr next, DataPtr data )
-      : _next( next )
-      , _data( data )
-   {}
 
 public:   
    static 
