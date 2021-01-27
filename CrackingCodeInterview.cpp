@@ -4,6 +4,9 @@
 
 #include <vector>
 #include <queue>
+
+#include <unordered_set>
+
 #include <string>
 
 #include <limits>
@@ -833,23 +836,34 @@ bool IsPermutation( std::string str1, std::string str2 )
    // std::cout << IsPermutation( "?123!asZZd-@", "Z?s3!d2-1a@Z" ) << std::endl;
 }
 
+/// linked list 
 template< class DataType >
 using Node = MyDataStructuresImpl::SingleLinkedNode< DataType >;
+
+auto GetRandomIntsLinkedList( std::size_t const listSize, int const min = -50, int const max = 50 )
+{
+   Node< int >::NodePtr head = nullptr;
+
+   if( listSize < 1 )
+      return head;
+
+   head = Node< int >::CreateNode( std::make_shared< int >( RandomInt( min, max ) ) );
+   auto listIterator = head;
+
+   for( std::size_t i = 1; i < listSize; ++i )
+   {
+      listIterator->SetNext( Node< int >::CreateNode( std::make_shared< int >( RandomInt( min, max ) ) ) );
+      listIterator = listIterator->GetNext();
+   }
+
+   return head;
+}
 
 
 int main()
 {
-   int const listSize = 15;
-   auto head = Node< int >::CreateNode( std::make_shared< int >( RandomInt( -50, 50 ) ) );
+   auto head = GetRandomIntsLinkedList( 15 );
    auto listIterator = head;
-
-   for( int i = 1; i < listSize; ++i )
-   {
-      listIterator->SetNext( Node< int >::CreateNode( std::make_shared< int >( RandomInt( -50, 50 ) ) ) );
-      listIterator = listIterator->GetNext();
-   }
-
-   listIterator = head;
    while( listIterator )
    {
       std::cout << *listIterator->GetData() << " ";

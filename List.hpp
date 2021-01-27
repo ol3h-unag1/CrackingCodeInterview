@@ -4,25 +4,6 @@
 
 #include <memory>
 
-// class A {
-// public:
-//    static shared_ptr<A> Create();
-// 
-// private:
-//    A() {}
-// 
-//    struct MakeSharedEnabler;
-// };
-// 
-// struct A::MakeSharedEnabler : public A {
-//    MakeSharedEnabler() : A() {
-//    }
-// };
-// 
-// shared_ptr<A> A::Create() {
-//    return make_shared<MakeSharedEnabler>();
-// }
-
 namespace MyDataStructuresImpl
 {
 
@@ -30,7 +11,7 @@ namespace MyDataStructuresImpl
 template< class DataType >
 class SingleLinkedNode
 {
-private:
+public:
    using DataPtr = std::shared_ptr< DataType >;
    using NodePtr = std::shared_ptr< SingleLinkedNode >;
 
