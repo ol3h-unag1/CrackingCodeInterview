@@ -38,7 +38,6 @@ private:
    struct MakeSharedEnabler : SingleLinkedNode< DataType >
    {
       MakeSharedEnabler( DataPtr data ) : SingleLinkedNode( data ) {}
-      MakeSharedEnabler( NodePtr next, DataPtr data ) : SingleLinkedNode( next, data ) {}
    };
 
 private:
@@ -46,7 +45,6 @@ private:
       : _next( nullptr )
       , _data( data )
    {}
-
 
 public:   
    static 
