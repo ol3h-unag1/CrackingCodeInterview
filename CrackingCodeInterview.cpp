@@ -859,14 +859,78 @@ auto GetRandomIntsLinkedList( std::size_t const listSize, int const min = -50, i
    return head;
 }
 
+template< class Node >
+Node Advance( Node head, std::size_t steps )
+{
+   while( head && steps)
+   {
+      head = head->GetNext();
+      steps--;
+   }
+   return head;
+}
+
+template< class Node >
+Node CycleBegin( Node head )
+{
+   if( !head || !head->GetNext() )
+   {
+      return nullptr;
+   }
+            
+   std::unordered_set< decltype( head.get() ) > addresses;
+   addresses.insert( head.get() );
+   while( head = head->GetNext() )
+   {
+      if( addresses.count( head.get() ) != 0 )
+      {
+         return head;
+      }
+      addresses.insert( head.get() );
+   }
+
+   return nullptr;
+}
+
+template< class Node >
+bool RemoveCycle( Node head )
+{
+   return cycleRemoved;
+}
+
+//std::size_t const listSize = 15;
+//auto head = GetRandomIntsLinkedList( listSize );
+//auto listIterator = head;
+//while( listIterator )
+//{
+//   std::cout << *listIterator->GetData() << "\t";
+//   std::cout << listIterator << " ";
+//   std::cout << listIterator.get() << std::endl;
+//
+//   listIterator = listIterator->GetNext();
+//}
+//
+//std::cout << CycleBegin( head ) << std::endl;
+//auto cycleBegin = Advance( head, 3 );
+//Advance( head, listSize - 1 )->SetNext( cycleBegin );
+//std::cout << CycleBegin( head ) << std::endl;
 
 int main()
 {
-   auto head = GetRandomIntsLinkedList( 15 );
+   std::size_t const listSize = 15;
+   auto head = GetRandomIntsLinkedList( listSize );
    auto listIterator = head;
    while( listIterator )
    {
-      std::cout << *listIterator->GetData() << " ";
+      std::cout << *listIterator->GetData() << "\t";
+      std::cout << listIterator << " ";
+      std::cout << listIterator.get() << std::endl;
+
       listIterator = listIterator->GetNext();
    }
+
+   std::cout << CycleBegin( head ) << std::endl;
+   auto cycleBegin = Advance( head, 3 );
+   Advance( head, listSize - 1 )->SetNext( cycleBegin );
+   std::cout << CycleBegin( head ) << std::endl;
 }
