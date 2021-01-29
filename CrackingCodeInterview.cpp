@@ -260,18 +260,18 @@ public:
 
 private:
    template< class HeapType1, class HeapType2 >
-   void BalanceHeaps( HeapType1& from, HeapType2& to )
+   void BalanceHeaps( HeapType1& big, HeapType2& small )
    {
-      if( from.size() < to.size() )
+      if( big.size() < small.size() )
       {
          return;
       }
 
-      while( from.size() - to.size() > 1 )
+      while( big.size() - small.size() > 1 )
       {
-         auto fromTop = from.top();
-         to.push( fromTop );
-         from.pop();
+         auto fromTop = big.top();
+         small.push( fromTop );
+         big.pop();
       }
    }
 
