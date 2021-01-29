@@ -1,8 +1,7 @@
 #pragma once
 
 #include <memory>
-
-#include <memory>
+#include "Random.hpp"
 
 namespace MyDataStructuresImpl
 {
@@ -13,7 +12,7 @@ class SingleLinkedNode
 {
 public:
    using DataPtr = std::shared_ptr< DataType >;
-   using NodePtr = std::shared_ptr< SingleLinkedNode >;
+   using SingleLinkedNodePtr = std::shared_ptr< SingleLinkedNode >;
 
 private:
    struct MakeSharedEnabler : SingleLinkedNode< DataType >
@@ -29,21 +28,79 @@ private:
 
 public:   
    static 
-   NodePtr CreateNode( DataPtr data )
+   SingleLinkedNodePtr CreateSingleLinkedNode( DataPtr data )
    {
       return std::make_shared< MakeSharedEnabler >( data );
    }
 
 public:
-   NodePtr GetNext() const { return _next; }
-   void SetNext( NodePtr next ) { _next = next; }
+   SingleLinkedNodePtr GetNext() const { return _next; }
+   void SetNext( SingleLinkedNodePtr next ) { _next = next; }
 
    DataPtr GetData() const { return _data; };
 
 private:
-   NodePtr _next;
+   SingleLinkedNodePtr _next;
    DataPtr _data;
 };
 
+
+auto GetRandomIntsLinkedList( std::size_t const listSize, int const min = -50, int const max = 50 )
+{
+   SingleLinkedNode< int >::SingleLinkedNodePtr head = nullptr;
+
+   if( listSize < 1 )
+      return head;
+
+   head = SingleLinkedNode< int >::CreateSingleLinkedNode( std::make_shared< int >( RandomInt( min, max ) ) );
+   auto listIterator = head;
+
+   for( std::size_t i = 1; i < listSize; ++i )
+   {
+      listIterator->SetNext( SingleLinkedNode< int >::CreateSingleLinkedNode( std::make_shared< int >( RandomInt( min, max ) ) ) );
+      listIterator = listIterator->GetNext();
+   }
+
+   return head;
+}
+
+template< class Node >
+Node Advance( Node head, std::size_t steps )
+{
+   while( head && steps )
+   {
+      head = head->GetNext();
+      steps--;
+   }
+   return head;
+}
+
+template< class Node >
+Node CycleBegin( Node head )
+{
+   Node fast = head;
+   Node slow = head;
+
+   while( fast && fast->GetNext() )
+   {
+      slow = slow->GetNext();
+      fast = fast->GetNext()->GetNext();
+
+      if( slow == fast )
+         break;
+   }
+
+   if( !fast || !fast->GetNext() )
+      return nullptr;
+
+   slow = head;
+   while( slow != fast )
+   {
+      slow = slow->GetNext();
+      fast = fast->GetNext();
+   }
+
+   return fast;
+}
 
 } // end of namespace MyDataStructuresImpl

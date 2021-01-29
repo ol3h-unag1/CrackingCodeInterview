@@ -836,87 +836,27 @@ bool IsPermutation( std::string str1, std::string str2 )
    // std::cout << IsPermutation( "?123!asZZd-@", "Z?s3!d2-1a@Z" ) << std::endl;
 }
 
-/// linked list 
-template< class DataType >
-using Node = MyDataStructuresImpl::SingleLinkedNode< DataType >;
-
-auto GetRandomIntsLinkedList( std::size_t const listSize, int const min = -50, int const max = 50 )
-{
-   Node< int >::NodePtr head = nullptr;
-
-   if( listSize < 1 )
-      return head;
-
-   head = Node< int >::CreateNode( std::make_shared< int >( RandomInt( min, max ) ) );
-   auto listIterator = head;
-
-   for( std::size_t i = 1; i < listSize; ++i )
-   {
-      listIterator->SetNext( Node< int >::CreateNode( std::make_shared< int >( RandomInt( min, max ) ) ) );
-      listIterator = listIterator->GetNext();
-   }
-
-   return head;
-}
-
-template< class Node >
-Node Advance( Node head, std::size_t steps )
-{
-   while( head && steps)
-   {
-      head = head->GetNext();
-      steps--;
-   }
-   return head;
-}
-
-template< class Node >
-Node CycleBegin( Node head )
-{
-   Node fast = head;
-   Node slow = head;
-
-   while( fast && fast->GetNext() )
-   {
-      slow = slow->GetNext();
-      fast = fast->GetNext()->GetNext();
-
-      if( slow == fast )
-         break;
-   }
-
-   if( !fast || !fast->GetNext() )
-      return nullptr;
-
-   slow = head;
-   while( slow != fast )
-   {
-      slow = slow->GetNext();
-      fast = fast->GetNext();
-   }
-
-   return fast;
-}
+/// test linked lists
+//using namespace MyDataStructuresImpl;
+//std::size_t const listSize = 15;
+//auto head = GetRandomIntsLinkedList( listSize );
+//auto listIterator = head;
+//while( listIterator )
+//{
+//   std::cout << *listIterator->GetData() << "\t";
+//   std::cout << listIterator << " ";
+//   std::cout << listIterator.get() << std::endl;
+//
+//   listIterator = listIterator->GetNext();
+//}
+//
+//std::cout << CycleBegin( head ) << std::endl;
+//auto cycleBegin = Advance( head, 5 );
+//Advance( head, listSize - 1 )->SetNext( cycleBegin );
+//std::cout << CycleBegin( head ) << std::endl;
 
 
 int main()
 {
-   std::size_t const listSize = 15;
-   auto head = GetRandomIntsLinkedList( listSize );
-   auto listIterator = head;
-   while( listIterator )
-   {
-      std::cout << *listIterator->GetData() << "\t";
-      std::cout << listIterator << " ";
-      std::cout << listIterator.get() << std::endl;
-
-      listIterator = listIterator->GetNext();
-   }
-
-   std::cout << CycleBegin( head ) << std::endl;
-   auto cycleBegin = Advance( head, 3 );
-   Advance( head, listSize - 1 )->SetNext( cycleBegin );
-   std::cout << CycleBegin( head ) << std::endl;
-
    return 0;
 }
