@@ -104,3 +104,22 @@ Node CycleBegin( Node head )
 }
 
 } // end of namespace MyDataStructuresImpl
+
+/// test linked lists
+//using namespace MyDataStructuresImpl;
+//std::size_t const listSize = 15;
+//auto head = GetRandomIntsLinkedList( listSize );
+//auto listIterator = head;
+//while( listIterator )
+//{
+//   std::cout << *listIterator->GetData() << "\t";
+//   std::cout << listIterator << " ";
+//   std::cout << listIterator.get() << std::endl;
+//
+//   listIterator = listIterator->GetNext();
+//}
+//
+//std::cout << CycleBegin( head ) << std::endl;
+//auto cycleBegin = Advance( head, 5 );
+//Advance( head, listSize - 1 )->SetNext( cycleBegin );
+//std::cout << CycleBegin( head ) << std::endl;

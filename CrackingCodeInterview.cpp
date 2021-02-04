@@ -17,6 +17,8 @@
 #include <chrono>
 
 #include "List.hpp"
+#include "Stack.hpp"
+
 #include "Random.hpp"
 
 /// sums of cubes
@@ -836,27 +838,11 @@ bool IsPermutation( std::string str1, std::string str2 )
    // std::cout << IsPermutation( "?123!asZZd-@", "Z?s3!d2-1a@Z" ) << std::endl;
 }
 
-/// test linked lists
-//using namespace MyDataStructuresImpl;
-//std::size_t const listSize = 15;
-//auto head = GetRandomIntsLinkedList( listSize );
-//auto listIterator = head;
-//while( listIterator )
-//{
-//   std::cout << *listIterator->GetData() << "\t";
-//   std::cout << listIterator << " ";
-//   std::cout << listIterator.get() << std::endl;
-//
-//   listIterator = listIterator->GetNext();
-//}
-//
-//std::cout << CycleBegin( head ) << std::endl;
-//auto cycleBegin = Advance( head, 5 );
-//Advance( head, listSize - 1 )->SetNext( cycleBegin );
-//std::cout << CycleBegin( head ) << std::endl;
 
 
 int main()
 {
+
+  
    return 0;
 }
