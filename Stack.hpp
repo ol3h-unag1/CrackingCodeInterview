@@ -100,7 +100,7 @@ void SortStackWithStack( Stack&& main )
 
 } // end of namespace MyDataStructuresImpl
 
-/// stack
+/// stack test code
 //MyDataStructuresImpl::Stack< int > viewStack;
 //
 //for( int i = 0; i < 10; ++i )

@@ -9,6 +9,8 @@
 
 #include <string>
 
+#include <type_traits>
+
 #include <limits>
 
 #include <functional>
@@ -18,6 +20,7 @@
 
 #include "List.hpp"
 #include "Stack.hpp"
+#include "Tree.hpp"
 
 #include "Random.hpp"
 
@@ -842,7 +845,15 @@ bool IsPermutation( std::string str1, std::string str2 )
 
 int main()
 {
+   auto createRandomIntNode = []( int const min, int const max ) { return MyDataStructuresImpl::BinaryTreeNode< int >::CreateBinaryTreeNode( RandomInt( min, max ) ); };
 
-  
+   auto rootNode = createRandomIntNode( 0, 100 );
+   auto rL = rootNode->SetLeftChild( createRandomIntNode( 0, 100 ) );
+   auto rR = rootNode->SetRightChild( createRandomIntNode( 0, 100 ) );
+   auto rLL = rL->SetLeftChild( createRandomIntNode( 0, 100 ) );
+   auto rLLL = rLL->SetLeftChild( createRandomIntNode( 0, 100 ) );
+
+   std::cout << MyDataStructuresImpl::BinaryTreeHeight( rootNode ) << std::endl;
+
    return 0;
 }
