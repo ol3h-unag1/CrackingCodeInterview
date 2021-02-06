@@ -842,7 +842,6 @@ bool IsPermutation( std::string str1, std::string str2 )
 }
 
 
-
 int main()
 {
    auto createRandomIntNode = []( int const min, int const max ) { return MyDataStructuresImpl::BinaryTreeNode< int >::CreateBinaryTreeNode( RandomInt( min, max ) ); };
@@ -854,6 +853,8 @@ int main()
    auto rLLL = rLL->SetLeftChild( createRandomIntNode( 0, 100 ) );
 
    std::cout << MyDataStructuresImpl::BinaryTreeHeight( rootNode ) << std::endl;
+   std::cout << MyDataStructuresImpl::IsBalancedBinaryTree( rootNode ) << std::endl;
+   std::cout << MyDataStructuresImpl::IsBalancedBinarySearchTree( rootNode ) << std::endl;   
 
    return 0;
 }

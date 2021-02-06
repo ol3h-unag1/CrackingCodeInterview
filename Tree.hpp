@@ -58,15 +58,15 @@ private:
 };
 
 template< class NodeType >
-std::size_t BinaryTreeHeight( NodeType const root, std::size_t height = 0 )
+std::size_t BinaryTreeHeight( NodeType const root, std::size_t const height = 0 )
 {
    if( root == nullptr )
    {
       return height;
    }
 
-   auto leftHeight = BinaryTreeHeight( root->GetLeftChild(), height + 1 );
-   auto rightHeight = BinaryTreeHeight( root->GetRightChild(), height + 1 );
+   auto const leftHeight = BinaryTreeHeight( root->GetLeftChild(), height + 1 );
+   auto const rightHeight = BinaryTreeHeight( root->GetRightChild(), height + 1 );
 
    return std::max( leftHeight, rightHeight );
 }
@@ -79,10 +79,70 @@ bool IsBalancedBinaryTree( NodeType const root )
       return false;
    }
 
+   auto const leftHeight = BinaryTreeHeight( root->GetLeftChild() );
+   auto const rightHeight = BinaryTreeHeight( root->GetRightChild() );
 
-   return false;
+   return ( std::max( leftHeight, rightHeight ) - std::min( leftHeight, rightHeight ) < 2 );
 }
 
+
+namespace 
+{
+
+struct HeightAndPredicate
+{
+   std::size_t height = 0u;
+   bool predicate = true;
+};
+
+template< class NodeType >
+HeightAndPredicate IsBalancedBinarySearchTree_Private( NodeType const root, HeightAndPredicate hap = {} )
+{
+   if( root == nullptr )
+   {
+      return hap;
+   }
+
+   if( root->GetLeftChild() && ( *root->GetLeftChild()->GetData() > *root->GetLeftChild()->GetData() ) )
+   {
+      return { 0u, false };
+   }
+
+   if( root->GetRightChild() && ( *root->GetRightChild()->GetData() < *root->GetLeftChild()->GetData() ) )
+   {
+      return { 0u, false };
+   }
+
+   auto left = IsBalancedBinarySearchTree_Private( root->GetLeftChild(), { hap.height + 1, true } );
+   auto right = IsBalancedBinarySearchTree_Private( root->GetRightChild(), { hap.height + 1, true } );
+
+   return { std::max( left.height, right.height ), left.predicate && right.predicate };
+}
+
+} // and of anonymous namespace
+
+template< class NodeType >
+bool IsBalancedBinarySearchTree( NodeType const root )
+{
+   if( root == nullptr )
+   {
+      return false;
+   }
+
+   auto left = IsBalancedBinarySearchTree_Private( root->GetLeftChild() );
+   if( left.predicate == false )
+   {
+      return false;
+   }
+
+   auto right = IsBalancedBinarySearchTree_Private( root->GetRightChild() );
+   if( right.predicate == false )
+   {
+      return false;
+   }
+
+   return ( std::max( left.height, right.height ) - std::min( left.height, right.height ) < 2 );
+}
 
 
 } // enf of MyDataStructuresImpl
