@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 
 namespace MyDataStructuresImpl
 {
@@ -86,7 +87,7 @@ bool IsBalancedBinaryTree( NodeType const root )
 }
 
 
-namespace 
+namespace Private
 {
 
 struct HeightAndPredicate
@@ -96,30 +97,30 @@ struct HeightAndPredicate
 };
 
 template< class NodeType >
-HeightAndPredicate IsBalancedBinarySearchTree_Private( NodeType const root, HeightAndPredicate hap = {} )
+HeightAndPredicate IsBalancedBinarySearchTree( NodeType const root, HeightAndPredicate hap = {} )
 {
    if( root == nullptr )
    {
       return hap;
    }
 
-   if( root->GetLeftChild() && ( *root->GetLeftChild()->GetData() > *root->GetLeftChild()->GetData() ) )
+   if( root->GetLeftChild() && ( *root->GetLeftChild()->GetData() > *root->GetData() ) )
    {
       return { 0u, false };
    }
 
-   if( root->GetRightChild() && ( *root->GetRightChild()->GetData() < *root->GetLeftChild()->GetData() ) )
+   if( root->GetRightChild() && ( *root->GetRightChild()->GetData() < *root->GetData() ) )
    {
       return { 0u, false };
    }
 
-   auto left = IsBalancedBinarySearchTree_Private( root->GetLeftChild(), { hap.height + 1, true } );
-   auto right = IsBalancedBinarySearchTree_Private( root->GetRightChild(), { hap.height + 1, true } );
+   auto left = IsBalancedBinarySearchTree( root->GetLeftChild(), { hap.height + 1, true } );
+   auto right = IsBalancedBinarySearchTree( root->GetRightChild(), { hap.height + 1, true } );
 
    return { std::max( left.height, right.height ), left.predicate && right.predicate };
 }
 
-} // and of anonymous namespace
+} // end of Private namespace
 
 template< class NodeType >
 bool IsBalancedBinarySearchTree( NodeType const root )
@@ -129,19 +130,78 @@ bool IsBalancedBinarySearchTree( NodeType const root )
       return false;
    }
 
-   auto left = IsBalancedBinarySearchTree_Private( root->GetLeftChild() );
+   auto left = Private::IsBalancedBinarySearchTree( root->GetLeftChild() );
    if( left.predicate == false )
    {
       return false;
    }
 
-   auto right = IsBalancedBinarySearchTree_Private( root->GetRightChild() );
+   auto right = Private::IsBalancedBinarySearchTree( root->GetRightChild() );
    if( right.predicate == false )
    {
       return false;
    }
 
    return ( std::max( left.height, right.height ) - std::min( left.height, right.height ) < 2 );
+}
+
+// the way to declare CreateMinimalBST less verbose than using 
+// template< class DataType, template< class DT, class ... Args > class Container, class ... Args >
+// typename BinaryTreeNode< DataType >::BinaryTreeNodePtr
+// CreateMinimalBST( Container< DataType, Args... > container )
+// thou below declaration is dependent on Container::value_type
+// template< class Container >
+// typename BinaryTreeNode< typename std::remove_reference_t< Container >::value_type >::BinaryTreeNodePtr 
+// CreateMinimalBST( Container&& container )
+// {
+// 
+// }
+
+
+template< class DataType, template< class DT, class ... Args > class Container, class ... Args >
+typename BinaryTreeNode< DataType >::BinaryTreeNodePtr
+CreateMinimalBST( Container< DataType, Args... >& container, typename Container< DataType, Args... >::iterator b, typename Container< DataType, Args... >::iterator e )
+{
+   if( b == e )
+   {
+      if( b == container.end() )
+      {
+         return nullptr;
+      }
+
+      return BinaryTreeNode< DataType >::CreateBinaryTreeNode( std::move( *b ) );;
+   }
+
+   auto mid = b;
+   std::advance( mid, std::distance( mid, e ) / 2 );
+
+   auto root = BinaryTreeNode< DataType >::CreateBinaryTreeNode( std::move( *mid ) );
+
+   auto le = mid;
+   std::advance( le, std::max( 0, std::distance( b, mid ) - 1 ) );
+   root->SetLeftChild( CreateMinimalBST( container, b, le ) );
+
+   std::advance( mid, 1 );
+   root->SetRightChild( CreateMinimalBST( container, mid, e ) );
+
+   return root;
+}
+
+template< class DataType, template< class DT, class ... Args > class Container, class ... Args >
+typename BinaryTreeNode< DataType >::BinaryTreeNodePtr
+CreateMinimalBST( Container< DataType, Args... > container, bool containerIsSorted )
+{
+   if( container.empty() )
+   {
+      return nullptr;
+   }
+
+   if( containerIsSorted == false )
+   {
+      container.sort();
+   }
+
+   return CreateMinimalBST( container, container.begin(), container.end() );
 }
 
 

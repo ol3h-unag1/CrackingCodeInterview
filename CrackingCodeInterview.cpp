@@ -845,16 +845,30 @@ bool IsPermutation( std::string str1, std::string str2 )
 int main()
 {
    auto createRandomIntNode = []( int const min, int const max ) { return MyDataStructuresImpl::BinaryTreeNode< int >::CreateBinaryTreeNode( RandomInt( min, max ) ); };
+   auto createNodeFromValue = []( auto&& value ) { return MyDataStructuresImpl::BinaryTreeNode< int >::CreateBinaryTreeNode( std::forward< std::remove_reference_t< decltype( value ) > >( value ) ); };
 
-   auto rootNode = createRandomIntNode( 0, 100 );
-   auto rL = rootNode->SetLeftChild( createRandomIntNode( 0, 100 ) );
-   auto rR = rootNode->SetRightChild( createRandomIntNode( 0, 100 ) );
-   auto rLL = rL->SetLeftChild( createRandomIntNode( 0, 100 ) );
-   auto rLLL = rLL->SetLeftChild( createRandomIntNode( 0, 100 ) );
+   auto rootNode = createNodeFromValue( 100 );
+   auto rL = rootNode->SetLeftChild( createNodeFromValue( 75 ) );
+   auto rR = rootNode->SetRightChild( createNodeFromValue( 125 ) );
+   auto rLL = rL->SetLeftChild( createNodeFromValue( 75 ) );
+   auto rLLL = rLL->SetLeftChild( createNodeFromValue( 25 ) );
 
    std::cout << MyDataStructuresImpl::BinaryTreeHeight( rootNode ) << std::endl;
    std::cout << MyDataStructuresImpl::IsBalancedBinaryTree( rootNode ) << std::endl;
-   std::cout << MyDataStructuresImpl::IsBalancedBinarySearchTree( rootNode ) << std::endl;   
+   std::cout << MyDataStructuresImpl::IsBalancedBinarySearchTree( rootNode ) << std::endl;
+
+   std::list< int > numbers;
+   for( int i = 0; i < 15; ++i )
+   {
+      numbers.push_back( i );
+   }
+
+   auto node = MyDataStructuresImpl::CreateMinimalBST( numbers, false );
+   std::cout << " CreateMinimalBST " << std::endl;
+   std::cout << MyDataStructuresImpl::BinaryTreeHeight( node ) << std::endl;
+   std::cout << MyDataStructuresImpl::IsBalancedBinaryTree( node ) << std::endl;
+   std::cout << MyDataStructuresImpl::IsBalancedBinarySearchTree( node ) << std::endl;
+
 
    return 0;
 }
