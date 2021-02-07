@@ -24,6 +24,8 @@
 
 #include "Random.hpp"
 
+#include "Debug.hpp"
+
 /// sums of cubes
 std::size_t const G_lowerBound = 1;
 std::size_t const G_upperBound = 1000;
@@ -842,28 +844,30 @@ bool IsPermutation( std::string str1, std::string str2 )
 }
 
 
+
 int main()
 {
+
    auto createRandomIntNode = []( int const min, int const max ) { return MyDataStructuresImpl::BinaryTreeNode< int >::CreateBinaryTreeNode( RandomInt( min, max ) ); };
    auto createNodeFromValue = []( auto&& value ) { return MyDataStructuresImpl::BinaryTreeNode< int >::CreateBinaryTreeNode( std::forward< std::remove_reference_t< decltype( value ) > >( value ) ); };
-
-   auto rootNode = createNodeFromValue( 100 );
-   auto rL = rootNode->SetLeftChild( createNodeFromValue( 75 ) );
-   auto rR = rootNode->SetRightChild( createNodeFromValue( 125 ) );
+   
+   auto r = createNodeFromValue( 100 );
+   auto rL = r->SetLeftChild( createNodeFromValue( 75 ) );
+   auto rR = r->SetRightChild( createNodeFromValue( 125 ) );
    auto rLL = rL->SetLeftChild( createNodeFromValue( 75 ) );
    auto rLLL = rLL->SetLeftChild( createNodeFromValue( 25 ) );
-
-   std::cout << MyDataStructuresImpl::BinaryTreeHeight( rootNode ) << std::endl;
-   std::cout << MyDataStructuresImpl::IsBalancedBinaryTree( rootNode ) << std::endl;
-   std::cout << MyDataStructuresImpl::IsBalancedBinarySearchTree( rootNode ) << std::endl;
-
-   std::list< int > numbers;
+   
+   std::cout << MyDataStructuresImpl::BinaryTreeHeight( r ) << std::endl;
+   std::cout << MyDataStructuresImpl::IsBalancedBinaryTree( r ) << std::endl;
+   std::cout << MyDataStructuresImpl::IsBalancedBinarySearchTree( r ) << std::endl;
+   
+   std::vector< int > numbersVector;
    for( int i = 0; i < 15; ++i )
    {
-      numbers.push_back( i );
+      numbersVector.push_back( i );
    }
-
-   auto node = MyDataStructuresImpl::CreateMinimalBST( numbers, false );
+   
+   auto node = MyDataStructuresImpl::CreateMinimalBST( numbersVector, true );
    std::cout << " CreateMinimalBST " << std::endl;
    std::cout << MyDataStructuresImpl::BinaryTreeHeight( node ) << std::endl;
    std::cout << MyDataStructuresImpl::IsBalancedBinaryTree( node ) << std::endl;

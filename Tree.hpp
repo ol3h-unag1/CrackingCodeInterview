@@ -160,48 +160,37 @@ bool IsBalancedBinarySearchTree( NodeType const root )
 
 template< class DataType, template< class DT, class ... Args > class Container, class ... Args >
 typename BinaryTreeNode< DataType >::BinaryTreeNodePtr
-CreateMinimalBST( Container< DataType, Args... >& container, typename Container< DataType, Args... >::iterator b, typename Container< DataType, Args... >::iterator e )
+CreateMinimalBST( Container< DataType, Args... >& container, int start, int end )
 {
-   if( b == e )
+   if ( end < start )
    {
-      if( b == container.end() )
-      {
-         return nullptr;
-      }
-
-      return BinaryTreeNode< DataType >::CreateBinaryTreeNode( std::move( *b ) );;
+      return nullptr;
    }
 
-   auto mid = b;
-   std::advance( mid, std::distance( mid, e ) / 2 );
-
-   auto root = BinaryTreeNode< DataType >::CreateBinaryTreeNode( std::move( *mid ) );
-
-   auto le = mid;
-   std::advance( le, std::max( 0, std::distance( b, mid ) - 1 ) );
-   root->SetLeftChild( CreateMinimalBST( container, b, le ) );
-
-   std::advance( mid, 1 );
-   root->SetRightChild( CreateMinimalBST( container, mid, e ) );
+   int mid = ( start + end ) / 2;
+   auto root = BinaryTreeNode< DataType >::CreateBinaryTreeNode( std::move( container[ mid ] ) );
+   root->SetLeftChild( CreateMinimalBST( container, start, mid - 1) );
+   root->SetRightChild( CreateMinimalBST( container, mid + 1, end ) );
 
    return root;
 }
 
+
 template< class DataType, template< class DT, class ... Args > class Container, class ... Args >
 typename BinaryTreeNode< DataType >::BinaryTreeNodePtr
-CreateMinimalBST( Container< DataType, Args... > container, bool containerIsSorted )
+CreateMinimalBST( Container< DataType, Args... > container, bool needSort )
 {
    if( container.empty() )
    {
       return nullptr;
    }
 
-   if( containerIsSorted == false )
+   if( needSort )
    {
-      container.sort();
+      std::sort( std::begin( container ), std::end( container ) );
    }
 
-   return CreateMinimalBST( container, container.begin(), container.end() );
+   return CreateMinimalBST( container, 0, static_cast< int >( container.size() ) - 1 );
 }
 
 
