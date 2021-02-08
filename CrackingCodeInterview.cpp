@@ -844,6 +844,38 @@ bool IsPermutation( std::string str1, std::string str2 )
 }
 
 
+static int S_GetHeightCalls = 0;
+
+template< class NodeType >
+int GetHeight( NodeType root )
+{
+   S_GetHeightCalls++;
+   if( root == nullptr )
+   {
+      return -1;
+   }
+
+   return std::max( GetHeight( root->GetLeftChild() ), GetHeight( root->GetRightChild() ) ) + 1;
+}
+
+template< class NodeType >
+bool IsBalanced( NodeType root )
+{
+   if( root == nullptr )
+   {
+      return true;
+   }
+
+   int const heightDiff = std::abs( GetHeight( root->GetLeftChild() ) - GetHeight( root->GetRightChild() ) );
+   if( heightDiff > 1 )
+   {
+      return false;
+   }
+   else
+   {
+      return IsBalanced( root->GetLeftChild() ) && IsBalanced( root->GetRightChild() );
+   }
+}
 
 int main()
 {
@@ -857,21 +889,35 @@ int main()
    auto rLL = rL->SetLeftChild( createNodeFromValue( 75 ) );
    auto rLLL = rLL->SetLeftChild( createNodeFromValue( 25 ) );
    
-   std::cout << MyDataStructuresImpl::BinaryTreeHeight( r ) << std::endl;
-   std::cout << MyDataStructuresImpl::IsBalancedBinaryTree( r ) << std::endl;
-   std::cout << MyDataStructuresImpl::IsBalancedBinarySearchTree( r ) << std::endl;
-   
+   std::cout << "MyDataStructuresImpl::BinaryTreeHeight: " << MyDataStructuresImpl::BinaryTreeHeight( r ) << std::endl;
+   std::cout << "MyDataStructuresImpl::IsBalancedBinaryTree: " << MyDataStructuresImpl::IsBalancedBinaryTree( r ) << std::endl;
+   std::cout << "MyDataStructuresImpl::IsBalancedBinarySearchTree: " << MyDataStructuresImpl::IsBalancedBinarySearchTree( r ) << std::endl;
+   std::cout << "GetHeight: " << GetHeight( r );
+   std::cout << "; called: " << S_GetHeightCalls << std::endl;
+   S_GetHeightCalls = 0;
+   std::cout << "IsBalanced: " << IsBalanced( r );
+   std::cout << "; GetHeight called " << S_GetHeightCalls << std::endl;
+   S_GetHeightCalls = 0;
+
    std::vector< int > numbersVector;
    for( int i = 0; i < 15; ++i )
    {
       numbersVector.push_back( i );
    }
    
-   auto node = MyDataStructuresImpl::CreateMinimalBST( numbersVector, true );
+   auto bstRoot = MyDataStructuresImpl::CreateMinimalBST( numbersVector, true );
    std::cout << " CreateMinimalBST " << std::endl;
-   std::cout << MyDataStructuresImpl::BinaryTreeHeight( node ) << std::endl;
-   std::cout << MyDataStructuresImpl::IsBalancedBinaryTree( node ) << std::endl;
-   std::cout << MyDataStructuresImpl::IsBalancedBinarySearchTree( node ) << std::endl;
+   std::cout << "MyDataStructuresImpl::BinaryTreeHeight: " << MyDataStructuresImpl::BinaryTreeHeight( bstRoot ) << std::endl;
+   std::cout << "MyDataStructuresImpl::IsBalancedBinaryTree: " << MyDataStructuresImpl::IsBalancedBinaryTree( bstRoot ) << std::endl;
+   std::cout << "MyDataStructuresImpl::IsBalancedBinarySearchTree: " << MyDataStructuresImpl::IsBalancedBinarySearchTree( bstRoot ) << std::endl;
+   std::cout << "GetHeight: " << GetHeight( bstRoot );
+   std::cout << "; called: " << S_GetHeightCalls << std::endl;
+   S_GetHeightCalls = 0;
+
+   std::cout << "IsBalanced: " << IsBalanced( bstRoot );
+   std::cout << "; GetHeight called " << S_GetHeightCalls << std::endl;
+   S_GetHeightCalls = 0;
+
 
 
    return 0;
