@@ -99,19 +99,19 @@ struct HeightAndPredicate
 template< class NodeType >
 HeightAndPredicate IsBalancedBinarySearchTree( NodeType const root, HeightAndPredicate hap = {} )
 {
-   if( root == nullptr )
+   if( root == nullptr || hap.predicate == false )
    {
       return hap;
    }
 
    if( root->GetLeftChild() && ( *root->GetLeftChild()->GetData() > *root->GetData() ) )
    {
-      return { 0u, false };
+      return { hap.height, false };
    }
 
-   if( root->GetRightChild() && ( *root->GetRightChild()->GetData() < *root->GetData() ) )
+   if( root->GetRightChild() && ( *root->GetRightChild()->GetData() <= *root->GetData() ) )
    {
-      return { 0u, false };
+      return { hap.height, false };
    }
 
    auto left = IsBalancedBinarySearchTree( root->GetLeftChild(), { hap.height + 1, true } );
@@ -156,8 +156,6 @@ bool IsBalancedBinarySearchTree( NodeType const root )
 // {
 // 
 // }
-
-
 template< class DataType, template< class DT, class ... Args > class Container, class ... Args >
 typename BinaryTreeNode< DataType >::BinaryTreeNodePtr
 CreateMinimalBST( Container< DataType, Args... >& container, int start, int end )
