@@ -2,6 +2,9 @@
 
 #include <algorithm>
 
+#include <iostream>
+
+
 namespace MyDataStructuresImpl
 {
 
@@ -10,17 +13,17 @@ template< class DataType >
 class BinaryTreeNode
 {
 public:
-   using DataPtr = std::shared_ptr< DataType >;
-   using BinaryTreeNodePtr = std::shared_ptr< BinaryTreeNode >;
+   using DataPtrType = std::shared_ptr< DataType >;
+   using BinaryTreeNodePtrType = std::shared_ptr< BinaryTreeNode >;
 
 private:
    struct MakeSharedEnabler : BinaryTreeNode< DataType >
    {
-      MakeSharedEnabler( DataPtr data ) : BinaryTreeNode( data ) {}
+      MakeSharedEnabler( DataPtrType data ) : BinaryTreeNode( data ) {}
    };
 
 private:
-   explicit BinaryTreeNode( DataPtr data )
+   explicit BinaryTreeNode( DataPtrType data )
       : _leftChild( nullptr )
       , _rightChild( nullptr )
       , _data( data )
@@ -29,33 +32,173 @@ private:
 public:   
    template< class U >
    static
-   BinaryTreeNodePtr CreateBinaryTreeNode( U&& data )
+   BinaryTreeNodePtrType CreateBinaryTreeNode( U&& data )
    {
       return std::make_shared< MakeSharedEnabler >( std::make_shared< U >( std::forward< U >( data ) ) );
    }
 
 public:
-   BinaryTreeNodePtr GetLeftChild() const { return _leftChild; }
-   BinaryTreeNodePtr SetLeftChild( BinaryTreeNodePtr node ) 
+   BinaryTreeNodePtrType GetLeftChild() const { return _leftChild; }
+   BinaryTreeNodePtrType SetLeftChild( BinaryTreeNodePtrType node ) 
    { 
       _leftChild = node; 
       return _leftChild;
    }
 
-   BinaryTreeNodePtr GetRightChild() const { return _rightChild; }
-   BinaryTreeNodePtr SetRightChild( BinaryTreeNodePtr node ) 
+   BinaryTreeNodePtrType GetRightChild() const { return _rightChild; }
+   BinaryTreeNodePtrType SetRightChild( BinaryTreeNodePtrType node ) 
    { 
       _rightChild = node;
       return _rightChild;
    }
 
-   DataPtr GetData() const { return _data; };
+   DataPtrType GetData() const { return _data; };
 
 private:
-   BinaryTreeNodePtr _leftChild;
-   BinaryTreeNodePtr _rightChild;
+   BinaryTreeNodePtrType _leftChild;
+   BinaryTreeNodePtrType _rightChild;
 
-   DataPtr _data;
+   DataPtrType _data;
+};
+
+class BinaryTreeFunctions
+{
+public:
+   template< class NodeType >
+   static
+   bool IsBST( NodeType const root )
+   {
+      if( root == nullptr )
+      {
+         return false;
+      }
+
+      return IsBST_Impl( root, nullptr, nullptr );
+   }
+
+   template< class NodeType >
+   static
+   bool IsBalancedBST( NodeType const root )
+   {
+      if( root == nullptr )
+      {
+         return false;
+      }
+
+      auto left = IsBalancedBST_Impl( root->GetLeftChild() );
+      if( left.predicate == false )
+      {
+         return false;
+      }
+
+      auto right = IsBalancedBST_Impl( root->GetRightChild() );
+      if( right.predicate == false )
+      {
+         return false;
+      }
+
+      return ( std::max( left.height, right.height ) - std::min( left.height, right.height ) < 2 );
+   }
+
+   template< class DataType, template< class DT, class ... Args > class Container, class ... Args >
+   typename BinaryTreeNode< DataType >::BinaryTreeNodePtrType
+   static
+   CreateMinimalBST( Container< DataType, Args... > container, bool needSort )
+   {
+      if( container.empty() )
+      {
+         return nullptr;
+      }
+
+      if( needSort )
+      {
+         std::sort( std::begin( container ), std::end( container ) );
+      }
+
+      return CreateMinimalBST_Impl( container, 0, static_cast< int >( container.size() ) - 1 );
+   }
+
+private:
+   template< class NodeType >
+   static
+   bool IsBST_Impl( NodeType const root, typename std::remove_reference_t< decltype(*root) >::DataPtrType const min, typename std::remove_reference_t< decltype( *root ) >::DataPtrType const max )
+   {
+      if( root == nullptr )
+      {
+         return true;
+      }
+
+      if( min != nullptr && ( *root->GetData() <= *min ) )
+      {
+         return  false;
+      }
+
+      if( max != nullptr && ( *root->GetData() > *max ) )
+      {
+         return  false;
+      }
+
+      return IsBST_Impl( root->GetLeftChild(), nullptr, root->GetData() ) && IsBST_Impl( root->GetRightChild(), root->GetData(), nullptr );
+   }
+
+   // template< class Container >
+   // typename BinaryTreeNode< typename std::remove_reference_t< Container >::value_type >::BinaryTreeNodePtr 
+   // CreateMinimalBST( Container&& container )
+   // {
+   // 
+   // }
+   // above commented lines are the way to declare CreateMinimalBST less verbose than code used below 
+   // thou above declaration is dependent on Container::value_type
+   template< class DataType, template< class DT, class ... Args > class Container, class ... Args >
+   typename BinaryTreeNode< DataType >::BinaryTreeNodePtrType
+   static
+   CreateMinimalBST_Impl( Container< DataType, Args... >& container, int start, int end )
+   {
+      if( end < start )
+      {
+         return nullptr;
+      }
+
+      int mid = ( start + end ) / 2;
+      auto root = BinaryTreeNode< DataType >::CreateBinaryTreeNode( std::move( container[ mid ] ) );
+      root->SetLeftChild( CreateMinimalBST_Impl( container, start, mid - 1 ) );
+      root->SetRightChild( CreateMinimalBST_Impl( container, mid + 1, end ) );
+
+      return root;
+   }
+
+   // helper struct 
+   struct HeightAndPredicate
+   {
+      std::size_t height = 0u;
+      bool predicate = true;
+   };
+
+   template< class NodeType >
+   static
+   HeightAndPredicate IsBalancedBST_Impl( NodeType const root, HeightAndPredicate hap = {} )
+   {
+      if( root == nullptr || hap.predicate == false )
+      {
+         return hap;
+      }
+
+      if( root->GetLeftChild() && ( *root->GetLeftChild()->GetData() > *root->GetData() ) )
+      {
+         return { hap.height, false };
+      }
+
+      if( root->GetRightChild() && ( *root->GetRightChild()->GetData() <= *root->GetData() ) )
+      {
+         return { hap.height, false };
+      }
+
+      auto left = IsBalancedBST_Impl( root->GetLeftChild(), { hap.height + 1, true } );
+      auto right = IsBalancedBST_Impl( root->GetRightChild(), { hap.height + 1, true } );
+
+      return { std::max( left.height, right.height ), left.predicate && right.predicate };
+   }
+
 };
 
 template< class NodeType >
@@ -86,58 +229,6 @@ bool IsBalancedBinaryTree( NodeType const root )
    return ( std::max( leftHeight, rightHeight ) - std::min( leftHeight, rightHeight ) < 2 );
 }
 
-
-template< class NodeType >
-bool IsBalancedBinarySearchTree( NodeType const root )
-{
-   return true;
-}
-
-// the way to declare CreateMinimalBST less verbose than using 
-// template< class DataType, template< class DT, class ... Args > class Container, class ... Args >
-// typename BinaryTreeNode< DataType >::BinaryTreeNodePtr
-// CreateMinimalBST( Container< DataType, Args... > container )
-// thou below declaration is dependent on Container::value_type
-// template< class Container >
-// typename BinaryTreeNode< typename std::remove_reference_t< Container >::value_type >::BinaryTreeNodePtr 
-// CreateMinimalBST( Container&& container )
-// {
-// 
-// }
-template< class DataType, template< class DT, class ... Args > class Container, class ... Args >
-typename BinaryTreeNode< DataType >::BinaryTreeNodePtr
-CreateMinimalBST( Container< DataType, Args... >& container, int start, int end )
-{
-   if ( end < start )
-   {
-      return nullptr;
-   }
-
-   int mid = ( start + end ) / 2;
-   auto root = BinaryTreeNode< DataType >::CreateBinaryTreeNode( std::move( container[ mid ] ) );
-   root->SetLeftChild( CreateMinimalBST( container, start, mid - 1) );
-   root->SetRightChild( CreateMinimalBST( container, mid + 1, end ) );
-
-   return root;
-}
-
-
-template< class DataType, template< class DT, class ... Args > class Container, class ... Args >
-typename BinaryTreeNode< DataType >::BinaryTreeNodePtr
-CreateMinimalBST( Container< DataType, Args... > container, bool needSort )
-{
-   if( container.empty() )
-   {
-      return nullptr;
-   }
-
-   if( needSort )
-   {
-      std::sort( std::begin( container ), std::end( container ) );
-   }
-
-   return CreateMinimalBST( container, 0, static_cast< int >( container.size() ) - 1 );
-}
 
 
 } // enf of MyDataStructuresImpl
