@@ -87,62 +87,10 @@ bool IsBalancedBinaryTree( NodeType const root )
 }
 
 
-namespace Private
-{
-
-struct HeightAndPredicate
-{
-   std::size_t height = 0u;
-   bool predicate = true;
-};
-
-template< class NodeType >
-HeightAndPredicate IsBalancedBinarySearchTree( NodeType const root, HeightAndPredicate hap = {} )
-{
-   if( root == nullptr || hap.predicate == false )
-   {
-      return hap;
-   }
-
-   if( root->GetLeftChild() && ( *root->GetLeftChild()->GetData() > *root->GetData() ) )
-   {
-      return { hap.height, false };
-   }
-
-   if( root->GetRightChild() && ( *root->GetRightChild()->GetData() <= *root->GetData() ) )
-   {
-      return { hap.height, false };
-   }
-
-   auto left = IsBalancedBinarySearchTree( root->GetLeftChild(), { hap.height + 1, true } );
-   auto right = IsBalancedBinarySearchTree( root->GetRightChild(), { hap.height + 1, true } );
-
-   return { std::max( left.height, right.height ), left.predicate && right.predicate };
-}
-
-} // end of Private namespace
-
 template< class NodeType >
 bool IsBalancedBinarySearchTree( NodeType const root )
 {
-   if( root == nullptr )
-   {
-      return false;
-   }
-
-   auto left = Private::IsBalancedBinarySearchTree( root->GetLeftChild() );
-   if( left.predicate == false )
-   {
-      return false;
-   }
-
-   auto right = Private::IsBalancedBinarySearchTree( root->GetRightChild() );
-   if( right.predicate == false )
-   {
-      return false;
-   }
-
-   return ( std::max( left.height, right.height ) - std::min( left.height, right.height ) < 2 );
+   return true;
 }
 
 // the way to declare CreateMinimalBST less verbose than using 
