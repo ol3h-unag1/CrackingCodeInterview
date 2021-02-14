@@ -837,10 +837,10 @@ private:
    bool _poisoned = false;
 };
 
-class TestStick
+class SingleUseTestStick
 {
 public:
-   explicit TestStick( std::size_t id )
+   explicit SingleUseTestStick( std::size_t id )
       : _id( id )
    {}
 
@@ -848,12 +848,10 @@ public:
 
    void Test( Bottle const& b )
    {
-      if( _isPositive )
+      if( b.IsPoisoned() )
       {
-         return;
+         _isPositive = true;
       }
-
-      _isPositive = b.IsPoisoned();
    }
 
    bool IsPositive() const { return _isPositive; }
@@ -886,7 +884,7 @@ auto GenerateBottlesBatch()
 auto GenerateSticksPack()
 {
    auto const initialNumberOfSticks = 10u;
-   std::vector< TestStick > sticks;
+   std::vector< SingleUseTestStick > sticks;
    sticks.reserve( initialNumberOfSticks );
    for( auto i = 0u; i < initialNumberOfSticks; ++i )
    {
@@ -939,6 +937,7 @@ void FindPoisonedBottle()
    std::cout << "Test result: " << result.to_ulong() << std::endl;
 
 }
+
 int main()
 {
 
