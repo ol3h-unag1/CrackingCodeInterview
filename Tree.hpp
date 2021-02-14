@@ -229,6 +229,33 @@ bool IsBalancedBinaryTree( NodeType const root )
    return ( std::max( leftHeight, rightHeight ) - std::min( leftHeight, rightHeight ) < 2 );
 }
 
+// tests
+//auto createRandomIntNode = []( int const min, int const max ) { return MyDataStructuresImpl::BinaryTreeNode< int >::CreateBinaryTreeNode( RandomInt( min, max ) ); };
+//auto createNodeFromValue = []( auto&& value ) { return MyDataStructuresImpl::BinaryTreeNode< int >::CreateBinaryTreeNode( std::forward< std::remove_reference_t< decltype( value ) > >( value ) ); };
 
+//auto r = createNodeFromValue( 100 );
+//auto rL = r->SetLeftChild( createNodeFromValue( 75 ) );
+//auto rR = r->SetRightChild( createNodeFromValue( 125 ) );
+//auto rLL = rL->SetLeftChild( createNodeFromValue( 75 ) );
+//auto rLLL = rLL->SetLeftChild( createNodeFromValue( 25 ) );
+//auto rLLLL = rLLL->SetLeftChild( createNodeFromValue( 10 ) );
+//
+//std::cout << "MyDataStructuresImpl::BinaryTreeHeight: " << MyDataStructuresImpl::BinaryTreeHeight( r ) << std::endl;
+//std::cout << "MyDataStructuresImpl::IsBalancedBinaryTree: " << MyDataStructuresImpl::IsBalancedBinaryTree( r ) << std::endl;
+//std::cout << "MyDataStructuresImpl::MyDataStructuresImpl::BinaryTreeFunctions::IsBST: " << MyDataStructuresImpl::BinaryTreeFunctions::IsBST( r ) << std::endl;
+//std::cout << "MyDataStructuresImpl::MyDataStructuresImpl::BinaryTreeFunctions::IsBalancedBST: " << MyDataStructuresImpl::BinaryTreeFunctions::IsBalancedBST( r ) << std::endl;
+//
+//std::vector< int > numbersVector;
+//for( int i = 0; i < 15; ++i )
+//{
+//   numbersVector.push_back( i );
+//}
+//
+//auto bstRoot = MyDataStructuresImpl::BinaryTreeFunctions::CreateMinimalBST( numbersVector, true );
+//std::cout << " CreateMinimalBST " << std::endl;
+//std::cout << "MyDataStructuresImpl::BinaryTreeHeight: " << MyDataStructuresImpl::BinaryTreeHeight( bstRoot ) << std::endl;
+//std::cout << "MyDataStructuresImpl::IsBalancedBinaryTree: " << MyDataStructuresImpl::IsBalancedBinaryTree( bstRoot ) << std::endl;
+//std::cout << "MyDataStructuresImpl::MyDataStructuresImpl::BinaryTreeFunctions::IsBST: " << MyDataStructuresImpl::BinaryTreeFunctions::IsBST( bstRoot ) << std::endl;
+//std::cout << "MyDataStructuresImpl::MyDataStructuresImpl::BinaryTreeFunctions::IsBalancedBST: " << MyDataStructuresImpl::BinaryTreeFunctions::IsBalancedBST( bstRoot ) << std::endl;
 
 } // enf of MyDataStructuresImpl

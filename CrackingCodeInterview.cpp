@@ -18,6 +18,10 @@
 
 #include <chrono>
 
+#include <bitset>
+
+#include <random>
+
 #include "List.hpp"
 #include "Stack.hpp"
 #include "Tree.hpp"
@@ -127,41 +131,6 @@ int powersOf2( int n )
 
    return curr;
 }
-
-/// recursion called from cycle
-std::size_t const jobSize = 3;
-std::size_t jobCallCounter = 0;
-std::size_t jobsDoneCounter = 0;
-void doJob( std::size_t jobSize )
-{
-   jobCallCounter++;
-   for( std::size_t i = 0; i < jobSize; ++i )
-   {
-      jobsDoneCounter++;
-   }
-}
-std::size_t recursiveCallCounter = 0;
-std::size_t const cycleSize = 3;
-void recursiveCall( std::size_t recursionNumber )
-{
-   recursiveCallCounter++;
-   if( !recursionNumber )
-   {
-      doJob( jobSize );
-   }
-   else
-   {
-      for( std::size_t ñ = 0; ñ < cycleSize; ++ñ )
-      {
-         recursiveCall( recursionNumber - 1 );
-      }
-   }
-}
-//recursiveCall( 4 );
-//std::cout << recursiveCallCounter << " recursive calls happened" << std::endl;
-//std::cout << jobCallCounter << " job calls happened" << std::endl;
-//std::cout << jobsDoneCounter << " jobs done" << std::endl;
-
 
 /// Endless array median
 std::vector< int > const sourceNumbers = { 12, 31, 25, 12, 43, 64, 47, 56, 75, 68, 62, 74, 57, 80, 89, 98, 99, 15, 10, 11 };
@@ -841,39 +810,137 @@ bool IsPermutation( std::string str1, std::string str2 )
    return product1 == product2;
 
    // std::cout << IsPermutation( "?123!asZZd-@", "Z?s3!d2-1a@Z" ) << std::endl;
+
 }
 
+double FractionPart( double number )
+{
+   return number - static_cast< int >( number );
+}
 
+class Bottle
+{
+public:
+   explicit Bottle( std::size_t id )
+      : _id( id )
+   {}
+
+   auto GetId() const { return _id; }
+
+   void Poison() { _poisoned = true; }
+   bool IsPoisoned() const { return _poisoned; }
+
+   bool operator<( Bottle const& other ) { return _id < other._id; }
+
+private:
+   std::size_t _id;
+   bool _poisoned = false;
+};
+
+class TestStick
+{
+public:
+   explicit TestStick( std::size_t id )
+      : _id( id )
+   {}
+
+   auto GetId() const { return _id;  }
+
+   void Test( Bottle const& b )
+   {
+      if( _isPositive )
+      {
+         return;
+      }
+
+      _isPositive = b.IsPoisoned();
+   }
+
+   bool IsPositive() const { return _isPositive; }
+
+private:
+   bool _isPositive = false;
+   std::size_t _id;
+};
+
+// Find Poisoned Bottle
+auto GenerateBottlesBatch()
+{
+   auto const initialNumberOfBottles = 1000u;
+   std::vector< Bottle > bottles;
+   bottles.reserve( initialNumberOfBottles );
+
+   for( auto i = 0u; i < initialNumberOfBottles; ++i )
+   {
+      bottles.emplace_back( i + 1);
+   }
+
+   std::random_device rd;
+   std::mt19937 re( rd() );
+   std::shuffle( bottles.begin(), bottles.end(), re );
+   bottles.front().Poison();
+   std::sort( bottles.begin(), bottles.end() );
+
+   return bottles;
+}
+auto GenerateSticksPack()
+{
+   auto const initialNumberOfSticks = 10u;
+   std::vector< TestStick > sticks;
+   sticks.reserve( initialNumberOfSticks );
+   for( auto i = 0u; i < initialNumberOfSticks; ++i )
+   {
+      sticks.emplace_back( i );
+   }
+
+   return sticks;
+}
+void FindPoisonedBottle()
+{
+   auto bottles = GenerateBottlesBatch();
+
+   for( auto const& b : bottles )
+   {
+      if( b.IsPoisoned() )
+      {
+         std::cout << __FUNCSIG__ << " " << b.GetId() << " bottle is poisoned. Binary:\n" << std::bitset< 10 >( b.GetId() ) << std::endl;
+      }
+   }
+
+   auto sticks = GenerateSticksPack();
+
+   for( auto bottleIndex = 0u; bottleIndex < bottles.size(); ++bottleIndex )
+   {
+      std::bitset< 10 > bs( bottles[ bottleIndex ].GetId() );
+      for( auto bit = 0; bit < 10; ++bit )
+      {
+         if( bs[ bit ] )
+         {
+            sticks[ bit ].Test( bottles[ bottleIndex ] );
+         }
+      }
+   }
+
+   for( auto const& s : sticks )
+   {
+      std::cout << s.IsPositive() ? 1 : 0;
+   }
+   std::cout << std::endl;
+
+   std::bitset< 10 > result;
+   for( auto i = 0u; i < 10; ++i )
+   {
+      if( sticks[ i ].IsPositive() )
+      {
+         result[ i ] = true;
+      }
+   }
+
+   std::cout << "Test result: " << result.to_ulong() << std::endl;
+
+}
 int main()
 {
-   auto createRandomIntNode = []( int const min, int const max ) { return MyDataStructuresImpl::BinaryTreeNode< int >::CreateBinaryTreeNode( RandomInt( min, max ) ); };
-   auto createNodeFromValue = []( auto&& value ) { return MyDataStructuresImpl::BinaryTreeNode< int >::CreateBinaryTreeNode( std::forward< std::remove_reference_t< decltype( value ) > >( value ) ); };
-   
-   auto r = createNodeFromValue( 100 );
-   auto rL = r->SetLeftChild( createNodeFromValue( 75 ) );
-   auto rR = r->SetRightChild( createNodeFromValue( 125 ) );
-   auto rLL = rL->SetLeftChild( createNodeFromValue( 75 ) );
-   auto rLLL = rLL->SetLeftChild( createNodeFromValue( 25 ) );
-   auto rLLLL = rLLL->SetLeftChild( createNodeFromValue( 10 ) );
-   
-   std::cout << "MyDataStructuresImpl::BinaryTreeHeight: " << MyDataStructuresImpl::BinaryTreeHeight( r ) << std::endl;
-   std::cout << "MyDataStructuresImpl::IsBalancedBinaryTree: " << MyDataStructuresImpl::IsBalancedBinaryTree( r ) << std::endl;
-   std::cout << "MyDataStructuresImpl::MyDataStructuresImpl::BinaryTreeFunctions::IsBST: " << MyDataStructuresImpl::BinaryTreeFunctions::IsBST( r ) << std::endl;
-   std::cout << "MyDataStructuresImpl::MyDataStructuresImpl::BinaryTreeFunctions::IsBalancedBST: " << MyDataStructuresImpl::BinaryTreeFunctions::IsBalancedBST( r ) << std::endl;
-
-   std::vector< int > numbersVector;
-   for( int i = 0; i < 15; ++i )
-   {
-      numbersVector.push_back( i );
-   }
-   
-   auto bstRoot = MyDataStructuresImpl::BinaryTreeFunctions::CreateMinimalBST( numbersVector, true );
-   std::cout << " CreateMinimalBST " << std::endl;
-   std::cout << "MyDataStructuresImpl::BinaryTreeHeight: " << MyDataStructuresImpl::BinaryTreeHeight( bstRoot ) << std::endl;
-   std::cout << "MyDataStructuresImpl::IsBalancedBinaryTree: " << MyDataStructuresImpl::IsBalancedBinaryTree( bstRoot ) << std::endl;
-   std::cout << "MyDataStructuresImpl::MyDataStructuresImpl::BinaryTreeFunctions::IsBST: " << MyDataStructuresImpl::BinaryTreeFunctions::IsBST( bstRoot ) << std::endl;
-   std::cout << "MyDataStructuresImpl::MyDataStructuresImpl::BinaryTreeFunctions::IsBalancedBST: " << MyDataStructuresImpl::BinaryTreeFunctions::IsBalancedBST( bstRoot ) << std::endl;
-
 
    return 0;
 }
