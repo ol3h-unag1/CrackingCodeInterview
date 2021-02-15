@@ -818,6 +818,7 @@ double FractionPart( double number )
    return number - static_cast< int >( number );
 }
 
+// Find Poisoned Bottle
 class Bottle
 {
 public:
@@ -836,7 +837,6 @@ private:
    std::size_t _id;
    bool _poisoned = false;
 };
-
 class SingleUseTestStick
 {
 public:
@@ -860,8 +860,6 @@ private:
    bool _isPositive = false;
    std::size_t _id;
 };
-
-// Find Poisoned Bottle
 auto GenerateBottlesBatch()
 {
    auto const initialNumberOfBottles = 1000u;
@@ -938,8 +936,122 @@ void FindPoisonedBottle()
 
 }
 
+// Test of user defined data with range based loops
+class RangeBasedLoopFreeFunctionsServedDataType
+{
+private:
+   using ContainerType = std::vector< int >;
+
+public:
+   using IteratorType = ContainerType::iterator;
+   using ConstIteratorType = ContainerType::const_iterator;
+
+private:
+   friend IteratorType begin( RangeBasedLoopFreeFunctionsServedDataType const& );
+   friend IteratorType end( RangeBasedLoopFreeFunctionsServedDataType const& );
+
+   friend ConstIteratorType cbegin( RangeBasedLoopFreeFunctionsServedDataType const& );
+   friend ConstIteratorType cend( RangeBasedLoopFreeFunctionsServedDataType const& );
+
+public:
+   RangeBasedLoopFreeFunctionsServedDataType( std::size_t const& size )
+   {
+      _data.reserve( size );
+      for( auto i = 0u; i < size; ++i )
+      {
+         _data.emplace_back( i );
+      }         
+   }
+
+   auto size() const { return _data.size(); }
+
+private:
+   ContainerType _data;
+};
+RangeBasedLoopFreeFunctionsServedDataType::IteratorType begin( RangeBasedLoopFreeFunctionsServedDataType const& t )
+{
+   return const_cast< RangeBasedLoopFreeFunctionsServedDataType& >( t )._data.begin();
+}
+RangeBasedLoopFreeFunctionsServedDataType::IteratorType end( RangeBasedLoopFreeFunctionsServedDataType const& t )
+{
+   return const_cast< RangeBasedLoopFreeFunctionsServedDataType& >( t )._data.end();
+}
+RangeBasedLoopFreeFunctionsServedDataType::ConstIteratorType cbegin( RangeBasedLoopFreeFunctionsServedDataType const& t )
+{
+   return t._data.cbegin();
+}
+RangeBasedLoopFreeFunctionsServedDataType::ConstIteratorType cend( RangeBasedLoopFreeFunctionsServedDataType const& t )
+{
+   return t._data.cend();
+}
+
+class TestCopy
+{
+public:
+   TestCopy() { std::cout << __FUNCSIG__ << std::endl; }
+   TestCopy( TestCopy const& ) { std::cout << __FUNCSIG__ << std::endl; }
+   TestCopy( TestCopy&& ) = delete;// { std::cout << __FUNCSIG__ << std::endl; }
+   ~TestCopy() { std::cout << __FUNCSIG__ << std::endl; }
+};
+
+int MinProductHelper( int, int, int );
+int MinProduct( int a, int b, int spaces )
+{
+   int bigger = a < b ? b : a;
+   int smaller = a < b ? a : b;
+
+   for( int i = 0; i < spaces; ++i )
+   {
+      std::cout << "--- ";
+   }
+   std::cout << "MinProduct: " << smaller << ";" << bigger << std::endl;
+
+   return MinProductHelper( smaller, bigger, spaces + 1 );
+}
+
+int MinProductHelper( int smaller, int bigger, int spaces )
+{
+   if( smaller == 0 )
+   {
+      for( int i = 0; i < spaces; ++i )
+      {
+         std::cout << "--- ";
+      }
+      std::cout << "Helper: " << smaller << ";" << bigger << " -> return 0" << std::endl;
+      return 0;
+   }
+   else if( smaller == 1 )
+   {
+      for( int i = 0; i < spaces; ++i )
+      {
+         std::cout << "--- ";
+      }
+      std::cout << "Helper: " << smaller << ";" << bigger << " -> return " << bigger << std::endl;
+      return bigger;
+   }
+
+   int s = smaller >> 1;  
+   int halfProd = MinProductHelper( s, bigger, spaces );
+   if( smaller % 2 == 0 )
+   {
+      std::cout << "Helper: " << smaller << ";" << bigger << " -> return " << halfProd << "+" << halfProd << std::endl;
+      return halfProd + halfProd;
+   }
+   else
+   {
+      std::cout << "Helper: " << smaller << ";" << bigger << " -> return " << halfProd << "+" << halfProd << "+" << bigger << std::endl;
+      return halfProd + halfProd + bigger;
+   }
+}
+
+int MinProduct( int a, int b )
+{
+   return MinProduct( a, b, 0 );
+}
+
 int main()
 {
+   std::cout << "------\n"  <<  MinProduct( 7, 9 ) << std::endl;
 
    return 0;
 }
