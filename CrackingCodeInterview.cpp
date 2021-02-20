@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include <cmath>
 
@@ -985,73 +986,129 @@ RangeBasedLoopFreeFunctionsServedDataType::ConstIteratorType cend( RangeBasedLoo
    return t._data.cend();
 }
 
-class TestCopy
+// multiplying numbers only with bit ">>" operation and ariphmetic "+"
+int MinProductHelper( int, int );
+int MinProduct( int a, int b )
 {
-public:
-   TestCopy() { std::cout << __FUNCSIG__ << std::endl; }
-   TestCopy( TestCopy const& ) { std::cout << __FUNCSIG__ << std::endl; }
-   TestCopy( TestCopy&& ) = delete;// { std::cout << __FUNCSIG__ << std::endl; }
-   ~TestCopy() { std::cout << __FUNCSIG__ << std::endl; }
-};
-
-int MinProductHelper( int, int, int );
-int MinProduct( int a, int b, int spaces )
-{
-   int bigger = a < b ? b : a;
-   int smaller = a < b ? a : b;
-
-   for( int i = 0; i < spaces; ++i )
-   {
-      std::cout << "--- ";
-   }
-   std::cout << "MinProduct: " << smaller << ";" << bigger << std::endl;
-
-   return MinProductHelper( smaller, bigger, spaces + 1 );
+   return MinProductHelper( std::min( a, b ), std::max( a, b ) );
 }
-
-int MinProductHelper( int smaller, int bigger, int spaces )
+int MinProductHelper( int smaller, int bigger )
 {
    if( smaller == 0 )
    {
-      for( int i = 0; i < spaces; ++i )
-      {
-         std::cout << "--- ";
-      }
-      std::cout << "Helper: " << smaller << ";" << bigger << " -> return 0" << std::endl;
       return 0;
    }
    else if( smaller == 1 )
    {
-      for( int i = 0; i < spaces; ++i )
-      {
-         std::cout << "--- ";
-      }
-      std::cout << "Helper: " << smaller << ";" << bigger << " -> return " << bigger << std::endl;
       return bigger;
    }
 
    int s = smaller >> 1;  
-   int halfProd = MinProductHelper( s, bigger, spaces );
+   int halfProd = MinProductHelper( s, bigger );
    if( smaller % 2 == 0 )
    {
-      std::cout << "Helper: " << smaller << ";" << bigger << " -> return " << halfProd << "+" << halfProd << std::endl;
       return halfProd + halfProd;
    }
    else
    {
-      std::cout << "Helper: " << smaller << ";" << bigger << " -> return " << halfProd << "+" << halfProd << "+" << bigger << std::endl;
       return halfProd + halfProd + bigger;
    }
 }
 
-int MinProduct( int a, int b )
+// generate all possible correct ( each '(' has ')' and vice versa) permurmation of '()'
+void AddParen( std::vector< std::string >& parens, int leftRem, int rightRem, std::string& str, int index)
 {
-   return MinProduct( a, b, 0 );
+   if( leftRem < 0 || rightRem < leftRem )
+   {
+      return;
+   }
+
+   if( leftRem == 0 && rightRem == 0 )
+   {
+      parens.push_back( str );
+   }
+   else
+   {
+      str[ index ] = '(';
+      AddParen( parens, leftRem - 1, rightRem, str, index + 1 );
+
+      str[ index ] = ')';
+      AddParen( parens, leftRem, rightRem - 1, str, index + 1 );
+   }
+}
+std::vector< std::string > GenerateParens( int count )
+{
+   std::string str( count * 2, '\0' );
+   std::vector< std::string > parens;
+   AddParen( parens, count, count, str, 0 );
+   return parens;
+}
+
+
+//template< class T, class = std::enable_if_t< std::is_integral_v< T > > >
+//void SwapInPlace( T& left, T& right )
+//{
+//   left = left ^ right;
+//   right = left ^ right;
+//   left = left ^ right;
+//}
+//
+//template< class T, class = std::enable_if_t< std::is_floating_point_v< T > >, bool = true >
+//void SwapInPlace( T& left, T& right )
+//{
+//   left = left - right;
+//   right = left + right;
+//   left = right - left;
+//}
+
+//template< class T, std::enable_if_t< std::is_integral_v< T > >* = nullptr >
+//void SwapInPlace( T& left, T& right )
+//{
+//   left = left ^ right;
+//   right = left ^ right;
+//   left = left ^ right;
+//}
+//
+//template< class T, std::enable_if_t< std::is_floating_point_v< T > >* = nullptr >
+//void SwapInPlace( T& left, T& right )
+//{
+//   left = left - right;
+//   right = left + right;
+//   left = right - left;
+//}
+
+template< class T >
+std::enable_if_t < std::is_integral_v< T > >
+SwapInPlace( T& left, T& right )
+{
+   left = left ^ right;
+   right = left ^ right;
+   left = left ^ right;
+}
+
+template< class T >
+std::enable_if_t < std::is_floating_point_v< T > >
+SwapInPlace( T& left, T& right )
+{
+   left = left - right;
+   right = left + right;
+   left = right - left;
 }
 
 int main()
 {
-   std::cout << "------\n"  <<  MinProduct( 7, 9 ) << std::endl;
+
+   int i1 = 10;
+   int i2 = -120;
+   std::cout << i1 << " " << i2 << std::endl;
+   SwapInPlace( i1, i2 );
+   std::cout << i1 << " " << i2 << std::endl;
+
+   double n1 = 1.1234;
+   double n2 = 2.5678;  
+   std::cout << n1 << " " << n2 << std::endl;
+   SwapInPlace( n1, n2 );
+   std::cout << n1 << " " << n2 << std::endl;
 
    return 0;
 }
