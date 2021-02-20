@@ -420,20 +420,7 @@ std::string JoinWordsBad( std::vector< std::string > const& words )
    return sentence;
 }
 
-/// Execution time check
-template< typename JobType >
-void ExecutionTimeCheck( JobType job )
-{
-   auto t1 = std::chrono::high_resolution_clock::now();
-   job();
-   auto t2 = std::chrono::high_resolution_clock::now();
-   std::cout << "job execution took " << std::chrono::duration_cast< std::chrono::microseconds >( t2 - t1 ).count() << " microseconds. " << std::endl;
-}
-template< typename JobType, typename ... Args >
-void ExecutionTimeCheck( JobType job, Args&& ... args )
-{
-   ExecutionTimeCheck( [&]() { job( std::forward< Args... >( args... ) ); } );
-}
+
 
 /// replace spaces
 bool ReplaceSpaces( char* str, int strLength, int bufferSize )
@@ -1044,39 +1031,7 @@ std::vector< std::string > GenerateParens( int count )
    return parens;
 }
 
-
-//template< class T, class = std::enable_if_t< std::is_integral_v< T > > >
-//void SwapInPlace( T& left, T& right )
-//{
-//   left = left ^ right;
-//   right = left ^ right;
-//   left = left ^ right;
-//}
-//
-//template< class T, class = std::enable_if_t< std::is_floating_point_v< T > >, bool = true >
-//void SwapInPlace( T& left, T& right )
-//{
-//   left = left - right;
-//   right = left + right;
-//   left = right - left;
-//}
-
-//template< class T, std::enable_if_t< std::is_integral_v< T > >* = nullptr >
-//void SwapInPlace( T& left, T& right )
-//{
-//   left = left ^ right;
-//   right = left ^ right;
-//   left = left ^ right;
-//}
-//
-//template< class T, std::enable_if_t< std::is_floating_point_v< T > >* = nullptr >
-//void SwapInPlace( T& left, T& right )
-//{
-//   left = left - right;
-//   right = left + right;
-//   left = right - left;
-//}
-
+// swap numbers in place
 template< class T >
 std::enable_if_t < std::is_integral_v< T > >
 SwapInPlace( T& left, T& right )
@@ -1095,20 +1050,41 @@ SwapInPlace( T& left, T& right )
    left = right - left;
 }
 
+////other options:
+//template< class T, std::enable_if_t< std::is_integral_v< T > > >
+//void SwapInPlace( T& left, T& right )
+//{
+//   left = left ^ right;
+//   right = left ^ right;
+//   left = left ^ right;
+//}
+//
+//template< class T, std::enable_if_t< std::is_floating_point_v< T > > >
+//void SwapInPlace( T& left, T& right )
+//{
+//   left = left - right;
+//   right = left + right;
+//   left = right - left;
+//}
+
+//
+//template< class T, std::enable_if_t< std::is_integral_v< T > >* = nullptr >
+//void SwapInPlace( T& left, T& right )
+//{
+//   left = left ^ right;
+//   right = left ^ right;
+//   left = left ^ right;
+//}
+//
+//template< class T, std::enable_if_t< std::is_floating_point_v< T > >* = nullptr >
+//void SwapInPlace( T& left, T& right )
+//{
+//   left = left - right;
+//   right = left + right;
+//   left = right - left;
+//}
+
 int main()
 {
-
-   int i1 = 10;
-   int i2 = -120;
-   std::cout << i1 << " " << i2 << std::endl;
-   SwapInPlace( i1, i2 );
-   std::cout << i1 << " " << i2 << std::endl;
-
-   double n1 = 1.1234;
-   double n2 = 2.5678;  
-   std::cout << n1 << " " << n2 << std::endl;
-   SwapInPlace( n1, n2 );
-   std::cout << n1 << " " << n2 << std::endl;
-
    return 0;
 }
