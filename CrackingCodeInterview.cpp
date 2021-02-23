@@ -1086,17 +1086,10 @@ class T9Parser
 private:
    T9Parser()
    {
-      auto& _number2words = NumberToWords();
-      // already initialized dictionaries
-      if( !_number2words.empty() )
-      {
-         return;
-      }
-
-      std::ifstream ifs( GetWordsBankFileName() );
+      std::ifstream ifs( _wordsBankFileName );
       if( !ifs )
       {
-         throw std::invalid_argument( std::string( __FUNCSIG__ ) + " | cant' open " + GetWordsBankFileName() );
+         throw std::invalid_argument( std::string( __FUNCSIG__ ) + " | cant' open " + _wordsBankFileName );
       }
 
       std::size_t bigWordsCounter = 0;
@@ -1111,13 +1104,12 @@ private:
                throw std::invalid_argument( std::string( __FUNCSIG__ ) + " bad letter: '" + letter + "'" );
             }
 
-            number += LetterToDigit( letter );
+            number += _letter2digit.at( letter );
          }
 
          _number2words.insert( { number, word } );
       }
    }
-   ~T9Parser() { static_cast< void >( NumberToWords( true ) ); }
 
 private:
    struct MakeSharedEnabler;
@@ -1137,7 +1129,6 @@ public:
       }
 
       std::vector< std::string > result;
-      auto& _number2words = NumberToWords();
       auto const range = _number2words.equal_range( number );
       for( auto it = range.first; it != range.second; ++it )
       {
@@ -1148,38 +1139,22 @@ public:
    }
 
 private:
-   static char LetterToDigit( char letter )
-   {
-      static std::unordered_map< char, char > const _letter2digit =
-      { { 'a', '2' }, { 'b', '2' }, { 'c', '2' },
-        { 'd', '3' }, { 'e', '3' }, { 'f', '3' },
-        { 'g', '4' }, { 'h', '4' }, { 'i', '4' },
-        { 'j', '5' }, { 'k', '5' }, { 'l', '5' },
-        { 'm', '6' }, { 'n', '6' }, { 'o', '6' },
-        { 'p', '7' }, { 'q', '7' }, { 'r', '7' }, { 's', '7' },
-        { 't', '8' }, { 'u', '8' }, { 'v', '8' },
-        { 'w', '9' }, { 'x', '9' }, { 'y', '9' }, { 'z', '9' }
-      };
+   std::unordered_map< char, char > const _letter2digit =
+   { { 'a', '2' }, { 'b', '2' }, { 'c', '2' },
+     { 'd', '3' }, { 'e', '3' }, { 'f', '3' },
+     { 'g', '4' }, { 'h', '4' }, { 'i', '4' },
+     { 'j', '5' }, { 'k', '5' }, { 'l', '5' },
+     { 'm', '6' }, { 'n', '6' }, { 'o', '6' },
+     { 'p', '7' }, { 'q', '7' }, { 'r', '7' }, { 's', '7' },
+     { 't', '8' }, { 'u', '8' }, { 'v', '8' },
+     { 'w', '9' }, { 'x', '9' }, { 'y', '9' }, { 'z', '9' }
+   };
 
-      return _letter2digit.at( letter );
-   }
+   std::unordered_multimap< std::string, std::string > _number2words;
+   std::string const _wordsBankFileName = "words_alpha.txt";
 
-   static std::unordered_multimap< std::string, std::string >& NumberToWords( bool clear = false )
-   {
-      static std::unordered_multimap< std::string, std::string > _number2words;
-      if( clear )
-      {
-         _number2words.clear();
-      }
-      return _number2words;
-   }
-
-   static std::string const GetWordsBankFileName()
-   {
-      static std::string const _wordsBankFileName = "words_alpha.txt";
-      return _wordsBankFileName;
-   }
-
+private:
+   // get/set weak ptr
    static std::weak_ptr < MakeSharedEnabler > WeakInstance( std::shared_ptr< T9Parser::MakeSharedEnabler > instance = nullptr )
    {
       static std::weak_ptr < MakeSharedEnabler > _weakInstance;
