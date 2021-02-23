@@ -1082,8 +1082,7 @@ SwapInPlace( T& left, T& right )
 // T9
 class T9Parser
 {
-public:
-   using NumberType = long long unsigned;
+
 private:
    T9Parser()
    {
@@ -1097,12 +1096,7 @@ private:
       std::string word;
       while( ifs >> word )
       {
-         if( word.size() > _maxWordLength )
-         {
-            bigWordsCounter++;
-            continue;
-         }
-         NumberType number = 0;
+         std::string number = "";
          for( auto const& letter : word )
          {
             if( !std::isalpha( letter ) )
@@ -1111,14 +1105,10 @@ private:
             }
 
             number += _letter2digit.at( letter );
-            number *= 10;
          }
 
-         number /= 10;
          _number2words.insert( { number, word } );
       }
-
-      std::cout << bigWordsCounter << " words longer then " << _maxWordLength << std::endl;
    }
 
 public:
@@ -1129,8 +1119,16 @@ public:
    }
 
 public:
-   auto GetWords( NumberType number )
-   {      
+   auto GetWords( std::string number )
+   {  
+      for( auto const& digit : number )
+      {
+         if( !isdigit( digit ) )
+         {
+            throw std::invalid_argument( std::string( __FUNCSIG__ ) + " | cant' open " + _wordsBankFileName );
+         }
+      }
+
       std::vector< std::string > result;
       auto const range = _number2words.equal_range( number );
       for( auto it = range.first; it != range.second; ++it )
@@ -1142,66 +1140,67 @@ public:
    }
 
 private:
-   std::unordered_map< char, NumberType > const _letter2digit =
-   { { 'a', 2 },  { 'b', 2 }, { 'c', 2 }, 
-     { 'd', 3 }, { 'e', 3 }, { 'f', 3 }, 
-     { 'g', 4 }, { 'h', 4 }, { 'i', 4 },
-     { 'j', 5 }, { 'k', 5 }, { 'l', 5 }, 
-     { 'm', 6 }, { 'n', 6 }, { 'o', 6 }, 
-     { 'p', 7 }, { 'q', 7 }, { 'r', 7 }, { 's', 7 },
-     { 't', 8 }, { 'u', 8 }, { 'v', 8 }, 
-     { 'w', 9 }, { 'x', 9 }, { 'y', 9 }, { 'z', 9 }
+   std::unordered_map< char, char > const _letter2digit =
+   { { 'a', '2' }, { 'b', '2' }, { 'c', '2' }, 
+     { 'd', '3' }, { 'e', '3' }, { 'f', '3' }, 
+     { 'g', '4' }, { 'h', '4' }, { 'i', '4' },
+     { 'j', '5' }, { 'k', '5' }, { 'l', '5' }, 
+     { 'm', '6' }, { 'n', '6' }, { 'o', '6' }, 
+     { 'p', '7' }, { 'q', '7' }, { 'r', '7' }, { 's', '7' },
+     { 't', '8' }, { 'u', '8' }, { 'v', '8' }, 
+     { 'w', '9' }, { 'x', '9' }, { 'y', '9' }, { 'z', '9' }
    };
 
-   std::unordered_multimap< NumberType, std::string > _number2words;
+   std::unordered_multimap< std::string, std::string > _number2words;
 
    std::string const _wordsBankFileName = "words_alpha.txt";
-   std::size_t _maxWordLength = std::to_string( std::numeric_limits< NumberType >::max() ).size();
 };
+
+//std::cout << "Initializing parser...\n";
+//T9Parser& parser = T9Parser::Instance();
+//
+//auto prompt = []() { std::cout << "Please enter a number: "; };
+//
+//prompt();
+//std::string input = "";
+//while( std::cin >> input )
+//{
+//   decltype( parser.GetWords( input ) ) words;
+//   try
+//   {
+//      words = parser.GetWords( input );
+//   }
+//   catch( std::exception const& e )
+//   {
+//      std::cout << __FUNCSIG__ << " " << e.what() << std::endl;
+//      prompt();
+//      continue;
+//   }
+//   catch( ... )
+//   {
+//      std::cout << __FUNCSIG__ << " unhandled exception. " << std::endl;
+//      prompt();
+//      continue;
+//   }
+//
+//   if( words.empty() )
+//   {
+//      std::cout << "No words for number <" << input << ">" << std::endl;
+//   }
+//   else
+//   {
+//      for( auto const& word : words )
+//      {
+//         std::cout << word << std::endl;
+//      }
+//   }
+//   prompt();
+//}
 
 int main()
 {
-   std::cout << "Initializing parser...\n";
-   T9Parser& parser = T9Parser::Instance();
 
-   auto prompt = [](){ std::cout << "Please enter a number: "; };
-   
-   prompt();
-   std::string input = "";
-   while( std::cin >> input )
-   {  
-      T9Parser::NumberType number = 0;
-      try
-      {
-         number = std::stoull( input );         
-      }
-      catch( std::exception& e )
-      {
-         std::cout << "Bad input: " << e.what() << std::endl;
-         prompt();
-         continue;
-      }
-      catch( ... )
-      {
-         std::cout << "Unhandled exception. Exiting..." << std::endl;
-         return 1;
-      }
 
-      auto words = parser.GetWords( number );
-      if( words.empty() )
-      {
-         std::cout << "No words for number <" << number << ">" << std::endl;
-      }
-      else
-      {
-         for( auto const& word : words )
-         {
-            std::cout << word << std::endl;
-         }
-      }
-      prompt();
-   }
-   
 
    return 0;
 }
