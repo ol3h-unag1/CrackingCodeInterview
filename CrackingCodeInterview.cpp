@@ -1079,17 +1079,24 @@ SwapInPlace( T& left, T& right )
    left = right - left;
 }
 
+
 // T9
 class T9Parser
 {
-
 private:
    T9Parser()
    {
-      std::ifstream ifs( _wordsBankFileName );
+      auto& _number2words = NumberToWords();
+      // already initialized dictionaries
+      if( !_number2words.empty() )
+      {
+         return;
+      }
+
+      std::ifstream ifs( GetWordsBankFileName() );
       if( !ifs )
       {
-         throw std::invalid_argument( std::string( __FUNCSIG__ ) + " | cant' open " + _wordsBankFileName );
+         throw std::invalid_argument( std::string( __FUNCSIG__ ) + " | cant' open " + GetWordsBankFileName() );
       }
 
       std::size_t bigWordsCounter = 0;
@@ -1104,32 +1111,33 @@ private:
                throw std::invalid_argument( std::string( __FUNCSIG__ ) + " bad letter: '" + letter + "'" );
             }
 
-            number += _letter2digit.at( letter );
+            number += LetterToDigit( letter );
          }
 
          _number2words.insert( { number, word } );
       }
    }
+   ~T9Parser() { static_cast< void >( NumberToWords( true ) ); }
+
+private:
+   struct MakeSharedEnabler;
 
 public:
-   static T9Parser& Instance()
-   {
-      static T9Parser p;
-      return p;
-   }
+   static std::shared_ptr< T9Parser > Instance();
 
 public:
    auto GetWords( std::string number )
-   {  
+   {
       for( auto const& digit : number )
       {
          if( !isdigit( digit ) )
          {
-            throw std::invalid_argument( std::string( __FUNCSIG__ ) + " | cant' open " + _wordsBankFileName );
+            throw std::invalid_argument( std::string( __FUNCSIG__ ) + digit + " is not a digit" );
          }
       }
 
       std::vector< std::string > result;
+      auto& _number2words = NumberToWords();
       auto const range = _number2words.equal_range( number );
       for( auto it = range.first; it != range.second; ++it )
       {
@@ -1140,67 +1148,118 @@ public:
    }
 
 private:
-   std::unordered_map< char, char > const _letter2digit =
-   { { 'a', '2' }, { 'b', '2' }, { 'c', '2' }, 
-     { 'd', '3' }, { 'e', '3' }, { 'f', '3' }, 
-     { 'g', '4' }, { 'h', '4' }, { 'i', '4' },
-     { 'j', '5' }, { 'k', '5' }, { 'l', '5' }, 
-     { 'm', '6' }, { 'n', '6' }, { 'o', '6' }, 
-     { 'p', '7' }, { 'q', '7' }, { 'r', '7' }, { 's', '7' },
-     { 't', '8' }, { 'u', '8' }, { 'v', '8' }, 
-     { 'w', '9' }, { 'x', '9' }, { 'y', '9' }, { 'z', '9' }
-   };
+   static char LetterToDigit( char letter )
+   {
+      static std::unordered_map< char, char > const _letter2digit =
+      { { 'a', '2' }, { 'b', '2' }, { 'c', '2' },
+        { 'd', '3' }, { 'e', '3' }, { 'f', '3' },
+        { 'g', '4' }, { 'h', '4' }, { 'i', '4' },
+        { 'j', '5' }, { 'k', '5' }, { 'l', '5' },
+        { 'm', '6' }, { 'n', '6' }, { 'o', '6' },
+        { 'p', '7' }, { 'q', '7' }, { 'r', '7' }, { 's', '7' },
+        { 't', '8' }, { 'u', '8' }, { 'v', '8' },
+        { 'w', '9' }, { 'x', '9' }, { 'y', '9' }, { 'z', '9' }
+      };
 
-   std::unordered_multimap< std::string, std::string > _number2words;
+      return _letter2digit.at( letter );
+   }
 
-   std::string const _wordsBankFileName = "words_alpha.txt";
+   static std::unordered_multimap< std::string, std::string >& NumberToWords( bool clear = false )
+   {
+      static std::unordered_multimap< std::string, std::string > _number2words;
+      if( clear )
+      {
+         _number2words.clear();
+      }
+      return _number2words;
+   }
+
+   static std::string const GetWordsBankFileName()
+   {
+      static std::string const _wordsBankFileName = "words_alpha.txt";
+      return _wordsBankFileName;
+   }
+
+   static std::weak_ptr < MakeSharedEnabler > WeakInstance( std::shared_ptr< T9Parser::MakeSharedEnabler > instance = nullptr )
+   {
+      static std::weak_ptr < MakeSharedEnabler > _weakInstance;
+      if( instance )
+      {
+         _weakInstance = instance;
+      }
+      return _weakInstance;
+   }
 };
 
-//std::cout << "Initializing parser...\n";
-//T9Parser& parser = T9Parser::Instance();
-//
-//auto prompt = []() { std::cout << "Please enter a number: "; };
-//
-//prompt();
-//std::string input = "";
-//while( std::cin >> input )
-//{
-//   decltype( parser.GetWords( input ) ) words;
-//   try
-//   {
-//      words = parser.GetWords( input );
-//   }
-//   catch( std::exception const& e )
-//   {
-//      std::cout << __FUNCSIG__ << " " << e.what() << std::endl;
-//      prompt();
-//      continue;
-//   }
-//   catch( ... )
-//   {
-//      std::cout << __FUNCSIG__ << " unhandled exception. " << std::endl;
-//      prompt();
-//      continue;
-//   }
-//
-//   if( words.empty() )
-//   {
-//      std::cout << "No words for number <" << input << ">" << std::endl;
-//   }
-//   else
-//   {
-//      for( auto const& word : words )
-//      {
-//         std::cout << word << std::endl;
-//      }
-//   }
-//   prompt();
-//}
+struct T9Parser::MakeSharedEnabler : T9Parser 
+{
+   MakeSharedEnabler() : T9Parser() {}
+};
+
+std::shared_ptr< T9Parser > T9Parser::Instance()
+{
+   if( auto instance = WeakInstance().lock() )
+   {
+      return WeakInstance().lock();
+   }
+
+   auto instance = std::make_shared< MakeSharedEnabler >();
+   static_cast< void >( WeakInstance( instance ) );
+   return instance;
+}
+
+void TestT9Parser()
+{
+   std::cout << "Initializing parser...\n";
+   auto parser = T9Parser::Instance();
+
+   auto prompt = []() { std::cout << "Please enter a number to convert to word or `-1` to quit: "; };
+
+   prompt();
+   std::string input = "";
+   while( std::cin >> input )
+   {
+      if( input == "-1" )
+      {
+         break;
+      }
+
+      decltype( parser->GetWords( input ) ) words;
+      try
+      {
+         words = parser->GetWords( input );
+      }
+      catch( std::exception const& e )
+      {
+         std::cout << __FUNCSIG__ << " " << e.what() << std::endl;
+         prompt();
+         continue;
+      }
+      catch( ... )
+      {
+         std::cout << __FUNCSIG__ << " unhandled exception. " << std::endl;
+         prompt();
+         continue;
+      }
+
+      if( words.empty() )
+      {
+         std::cout << "No words for number <" << input << ">" << std::endl;
+      }
+      else
+      {
+         for( auto const& word : words )
+         {
+            std::cout << word << std::endl;
+         }
+      }
+      prompt();
+   }
+}
 
 int main()
 {
-
-
+   TestT9Parser();
 
    return 0;
 }
