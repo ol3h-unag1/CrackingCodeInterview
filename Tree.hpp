@@ -226,7 +226,7 @@ bool IsBalancedBinaryTree( NodeType const root )
    auto const leftHeight = BinaryTreeHeight( root->GetLeftChild() );
    auto const rightHeight = BinaryTreeHeight( root->GetRightChild() );
 
-   return ( std::max( leftHeight, rightHeight ) - std::min( leftHeight, rightHeight ) < 2 );
+   return ( std::abs( leftHeight - rightHeight ) < 2 );
 }
 
 // tests

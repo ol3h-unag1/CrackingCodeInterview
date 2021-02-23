@@ -6,6 +6,7 @@
 #include <vector>
 #include <queue>
 
+#include <unordered_map>
 #include <unordered_set>
 
 #include <string>
@@ -914,10 +915,7 @@ void FindPoisonedBottle()
    std::bitset< 10 > result;
    for( auto i = 0u; i < 10; ++i )
    {
-      if( sticks[ i ].IsPositive() )
-      {
-         result[ i ] = true;
-      }
+      result[ i ] = sticks[ i ].IsPositive();
    }
 
    std::cout << "Test result: " << result.to_ulong() << std::endl;
@@ -1040,16 +1038,6 @@ SwapInPlace( T& left, T& right )
    right = left ^ right;
    left = left ^ right;
 }
-
-template< class T >
-std::enable_if_t < std::is_floating_point_v< T > >
-SwapInPlace( T& left, T& right )
-{
-   left = left - right;
-   right = left + right;
-   left = right - left;
-}
-
 ////other options:
 //template< class T, std::enable_if_t< std::is_integral_v< T > > >
 //void SwapInPlace( T& left, T& right )
@@ -1066,7 +1054,6 @@ SwapInPlace( T& left, T& right )
 //   right = left + right;
 //   left = right - left;
 //}
-
 //
 //template< class T, std::enable_if_t< std::is_integral_v< T > >* = nullptr >
 //void SwapInPlace( T& left, T& right )
@@ -1083,8 +1070,100 @@ SwapInPlace( T& left, T& right )
 //   right = left + right;
 //   left = right - left;
 //}
+template< class T >
+std::enable_if_t < std::is_floating_point_v< T > >
+SwapInPlace( T& left, T& right )
+{
+   left = left - right;
+   right = left + right;
+   left = right - left;
+}
+
+// T9
+class T9Parser
+{
+private:
+   T9Parser()
+   {
+      std::ifstream ifs( _wordsBank );
+      if( !ifs )
+      {
+         throw std::invalid_argument( std::string( __FUNCSIG__ ) + " | cant' open " + _wordsBank );
+      }
+
+      std::string word;
+      while( ifs >> word )
+      {
+         std::size_t number = 0;
+         for( auto const& letter : word )
+         {
+            if( !std::isalpha( letter ) )
+            {
+               throw std::invalid_argument( std::string( __FUNCSIG__ ) + " bad letter: '" + letter + "'" );
+            }
+
+            number += _letter2digit.at( letter );
+            number *= 10;
+         }
+
+         number /= 10;
+         _number2words.insert( { number, word } );
+      }
+   }
+
+public:
+   static T9Parser& Instance()
+   {
+      static T9Parser p;
+      return p;
+   }
+
+public:
+   std::vector< std::string > GetWords( std::size_t number )
+   {
+      std::vector< std::string > result;
+      auto const range = _number2words.equal_range( number );
+      for( auto it = range.first; it != range.second; ++it )
+      {
+         result.push_back( it->second );
+      }
+
+      return result;
+   }
+
+private:
+   std::unordered_map< char, std::size_t > const _letter2digit =
+   { { 'a', 2 },  { 'b', 2 }, { 'c', 2 }, 
+     { 'd', 3 }, { 'e', 3 }, { 'f', 3 }, 
+     { 'g', 4 }, { 'h', 4 }, { 'i', 4 },
+     { 'j', 5 }, { 'k', 5 }, { 'l', 5 }, 
+     { 'm', 6 }, { 'n', 6 }, { 'o', 6 }, 
+     { 'p', 7 }, { 'q', 7 }, { 'r', 7 }, { 's', 7 },
+     { 't', 8 }, { 'u', 8 }, { 'v', 8 }, 
+     { 'w', 9 }, { 'x', 9 }, { 'y', 9 }, { 'z', 9 }
+   };
+
+   std::unordered_multimap< std::size_t, std::string > _number2words;
+
+   std::string const _wordsBank = "words_alpha.txt";
+};
+
 
 int main()
 {
+   T9Parser& parser = T9Parser::Instance();
+
+   std::size_t t9input = 2229;
+   for( auto const& word : parser.GetWords( t9input ) )
+   {
+      std::cout << word << std::endl;
+   }
+
+   t9input = 5433;
+   for( auto const& word : parser.GetWords( t9input ) )
+   {
+      std::cout << word << std::endl;
+   }
+   std::cout << sizeof( char ) << std::endl;
    return 0;
 }
