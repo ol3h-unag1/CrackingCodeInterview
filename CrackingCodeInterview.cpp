@@ -1082,19 +1082,27 @@ SwapInPlace( T& left, T& right )
 // T9
 class T9Parser
 {
+public:
+   using NumberType = long long unsigned;
 private:
    T9Parser()
    {
-      std::ifstream ifs( _wordsBank );
+      std::ifstream ifs( _wordsBankFileName );
       if( !ifs )
       {
-         throw std::invalid_argument( std::string( __FUNCSIG__ ) + " | cant' open " + _wordsBank );
+         throw std::invalid_argument( std::string( __FUNCSIG__ ) + " | cant' open " + _wordsBankFileName );
       }
 
+      std::size_t bigWordsCounter = 0;
       std::string word;
       while( ifs >> word )
       {
-         std::size_t number = 0;
+         if( word.size() > _maxWordLength )
+         {
+            bigWordsCounter++;
+            continue;
+         }
+         NumberType number = 0;
          for( auto const& letter : word )
          {
             if( !std::isalpha( letter ) )
@@ -1109,6 +1117,8 @@ private:
          number /= 10;
          _number2words.insert( { number, word } );
       }
+
+      std::cout << bigWordsCounter << " words longer then " << _maxWordLength << std::endl;
    }
 
 public:
@@ -1119,8 +1129,8 @@ public:
    }
 
 public:
-   std::vector< std::string > GetWords( std::size_t number )
-   {
+   auto GetWords( NumberType number )
+   {      
       std::vector< std::string > result;
       auto const range = _number2words.equal_range( number );
       for( auto it = range.first; it != range.second; ++it )
@@ -1132,7 +1142,7 @@ public:
    }
 
 private:
-   std::unordered_map< char, std::size_t > const _letter2digit =
+   std::unordered_map< char, NumberType > const _letter2digit =
    { { 'a', 2 },  { 'b', 2 }, { 'c', 2 }, 
      { 'd', 3 }, { 'e', 3 }, { 'f', 3 }, 
      { 'g', 4 }, { 'h', 4 }, { 'i', 4 },
@@ -1143,27 +1153,55 @@ private:
      { 'w', 9 }, { 'x', 9 }, { 'y', 9 }, { 'z', 9 }
    };
 
-   std::unordered_multimap< std::size_t, std::string > _number2words;
+   std::unordered_multimap< NumberType, std::string > _number2words;
 
-   std::string const _wordsBank = "words_alpha.txt";
+   std::string const _wordsBankFileName = "words_alpha.txt";
+   std::size_t _maxWordLength = std::to_string( std::numeric_limits< NumberType >::max() ).size();
 };
-
 
 int main()
 {
+   std::cout << "Initializing parser...\n";
    T9Parser& parser = T9Parser::Instance();
 
-   std::size_t t9input = 2229;
-   for( auto const& word : parser.GetWords( t9input ) )
-   {
-      std::cout << word << std::endl;
-   }
+   auto prompt = [](){ std::cout << "Please enter a number: "; };
+   
+   prompt();
+   std::string input = "";
+   while( std::cin >> input )
+   {  
+      T9Parser::NumberType number = 0;
+      try
+      {
+         number = std::stoull( input );         
+      }
+      catch( std::exception& e )
+      {
+         std::cout << "Bad input: " << e.what() << std::endl;
+         prompt();
+         continue;
+      }
+      catch( ... )
+      {
+         std::cout << "Unhandled exception. Exiting..." << std::endl;
+         return 1;
+      }
 
-   t9input = 5433;
-   for( auto const& word : parser.GetWords( t9input ) )
-   {
-      std::cout << word << std::endl;
+      auto words = parser.GetWords( number );
+      if( words.empty() )
+      {
+         std::cout << "No words for number <" << number << ">" << std::endl;
+      }
+      else
+      {
+         for( auto const& word : words )
+         {
+            std::cout << word << std::endl;
+         }
+      }
+      prompt();
    }
-   std::cout << sizeof( char ) << std::endl;
+   
+
    return 0;
 }
