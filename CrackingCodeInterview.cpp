@@ -219,38 +219,19 @@ public:
    }
 
 public:
-
    double Push( int number )
    {
       if( number <= smallerHalf_MaxHeap.top() )
       {
          smallerHalf_MaxHeap.push( number );
-         BalanceHeaps( smallerHalf_MaxHeap, biggerHalf_MinHeap );
       }
       else
       {
          biggerHalf_MinHeap.push( number );
-         BalanceHeaps( biggerHalf_MinHeap, smallerHalf_MaxHeap );
       }
 
+      BalanceHeaps( biggerHalf_MinHeap, smallerHalf_MaxHeap );
       return GetMedian();
-   }
-
-private:
-   template< class HeapType1, class HeapType2 >
-   void BalanceHeaps( HeapType1& big, HeapType2& small )
-   {
-      if( big.size() < small.size() )
-      {
-         return;
-      }
-
-      while( big.size() - small.size() > 1 )
-      {
-         auto fromTop = big.top();
-         small.push( fromTop );
-         big.pop();
-      }
    }
 
    double GetMedian() const
@@ -270,11 +251,53 @@ private:
       }
    }
 
+
+private:
+   template< class HeapType1, class HeapType2 >
+   void BalanceHeaps( HeapType1& big, HeapType2& small )
+   {
+      if( big.size() < small.size() )
+      {
+         return BalanceHeaps( small, big );
+      }
+
+      while( big.size() - small.size() > 1 )
+      {
+         auto fromTop = big.top();
+         small.push( fromTop );
+         big.pop();
+      }
+   }
+
 private:
    std::priority_queue< int > smallerHalf_MaxHeap;
    std::priority_queue< int, std::vector< int >, std::greater< int > > biggerHalf_MinHeap;
 };
-
+//int const lowBound = -200;
+//int const highBound = 200;
+//std::vector< int > numbers{ lowBound, highBound };
+//int const amount = 18;
+//Median m( numbers.front(), numbers.back() );
+//
+//auto printNumbersAndMedian = [&]()
+//{
+//   std::cout << "Numbers: ";
+//   for( std::size_t i = 0u; i < numbers.size() - 1; ++i )
+//   {
+//      std::cout << numbers[ i ] << ", ";
+//   }
+//   std::cout << numbers.back() << std::endl;
+//   std::cout << "Median: " << m.GetMedian() << std::endl;
+//   std::cout << "----------------------------------" << std::endl;
+//};
+//
+//printNumbersAndMedian();
+//for( int i = 0; i < amount; ++i )
+//{
+//   numbers.push_back( RandomInt( lowBound, highBound ) );
+//   m.Push( numbers.back() );
+//   printNumbersAndMedian();
+//}
 
 /// string builder
 std::vector< std::string > words
@@ -1165,24 +1188,21 @@ private:
       return _weakInstance;
    }
 };
-
 struct T9Parser::MakeSharedEnabler : T9Parser 
 {
    MakeSharedEnabler() : T9Parser() {}
 };
-
 std::shared_ptr< T9Parser > T9Parser::Instance()
 {
    if( auto instance = WeakInstance().lock() )
    {
-      return WeakInstance().lock();
+      return instance;
    }
 
    auto instance = std::make_shared< MakeSharedEnabler >();
    static_cast< void >( WeakInstance( instance ) );
    return instance;
 }
-
 void TestT9Parser()
 {
    std::cout << "Initializing parser...\n";
@@ -1234,7 +1254,5 @@ void TestT9Parser()
 
 int main()
 {
-   TestT9Parser();
-
    return 0;
 }
