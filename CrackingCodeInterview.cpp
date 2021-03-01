@@ -428,23 +428,11 @@ std::string JoinWords( std::vector< std::string > const& words )
    std::string sentence = "";
    for( auto const& w : words )
    {
-      sentence.append( w );
-   }
-
-   return sentence;
-}
-std::string JoinWordsBad( std::vector< std::string > const& words )
-{
-   std::string sentence = "";
-   for( auto const& w : words )
-   {
       sentence += w;
    }
 
    return sentence;
 }
-
-
 
 /// replace spaces
 bool ReplaceSpaces( char* str, int strLength, int bufferSize )
