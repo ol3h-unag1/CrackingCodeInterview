@@ -9,40 +9,16 @@
 
 DBDI_Base::UP_DBDI_Base Factory( DBDI_Hierachy h )
 {
-   DBDI_Base::UP_DBDI_Base ret = nullptr;
-
    switch( h )
    {
    case DBDI_Hierachy::DBDI_Derived1:
-      try
-      {
-         ret.reset( new DBDI_Derived1 );
-      }
-      catch( std::exception& e )
-      {
-         std::cout << e.what() << std::endl;
-      }
-      catch( ... )
-      {
-         std::cout << __FUNCSIG__ << " : " << __LINE__ <<  ": unhandled exception" << std::endl;
-      }
+      return std::make_unique< DBDI_Derived1::MakeUniqueEnabler >();
       break;
 
    case DBDI_Hierachy::DBDI_Derived2:
-      try
-      {
-         ret.reset( new DBDI_Derived2 );
-      }
-      catch( std::exception& e )
-      {
-         std::cout << e.what() << std::endl;
-      }
-      catch( ... )
-      {
-         std::cout << __FUNCSIG__ << " : " << __LINE__ << ": unhandled exception" << std::endl;
-      }
+      return std::make_unique< DBDI_Derived2::MakeUniqueEnabler >();
       break;
    }
 
-   return ret;
+   return nullptr;
 }

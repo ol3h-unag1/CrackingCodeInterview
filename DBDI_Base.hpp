@@ -8,10 +8,13 @@ enum class DBDI_Hierachy;
 
 class DBDI_Base
 {
-public:
-   using UP_DBDI_Base = std::unique_ptr< DBDI_Base >;
+protected:
+   struct MakeUniqueEnabler;
 
 public:
+   using UP_DBDI_Base = std::unique_ptr< MakeUniqueEnabler >;
+
+private:
    DBDI_Base() {}
    virtual ~DBDI_Base() {}
 
@@ -26,4 +29,9 @@ public:
 
 protected:
    int _data = -1;
+};
+
+struct DBDI_Base::MakeUniqueEnabler : DBDI_Base
+{
+   MakeUniqueEnabler() : DBDI_Base() {}
 };
