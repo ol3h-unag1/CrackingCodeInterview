@@ -33,11 +33,11 @@ protected:
    ~BinaryTreeNode() {}
 
 public:   
-   template< class U, class Check = std::enable_if_t< std::is_same_v< U, DataType > > >
+   template< class U, class Check = std::enable_if_t< std::is_same_v< U, DataType > || std::is_convertible_v< U, DataType > > >
    static
    BinaryTreeNodePtrType CreateBinaryTreeNode( U&& data )
    {
-      return std::make_shared< MakeSharedEnabler >( std::make_shared< U >( std::forward< U >( data ) ) );
+      return std::make_shared< MakeSharedEnabler >( std::make_shared< DataType >( std::forward< U >( data ) ) );
    }
 
 public:
