@@ -29,8 +29,11 @@ private:
       , _data( data )
    {}
 
+protected:
+   ~BinaryTreeNode() {}
+
 public:   
-   template< class U >
+   template< class U, class Check = std::enable_if_t< std::is_same_v< U, DataType > > >
    static
    BinaryTreeNodePtrType CreateBinaryTreeNode( U&& data )
    {

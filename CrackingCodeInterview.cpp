@@ -1090,7 +1090,6 @@ SwapInPlace( T& left, T& right )
    left = right - left;
 }
 
-
 // T9
 class T9Parser
 {
@@ -1240,7 +1239,117 @@ void TestT9Parser()
    }
 }
 
+// Dynamic Binding During Initialization idiom (AKA Calling Virtuals During Initialization).
+/*class DBDI_Base;
+using UP_DBDI_Base = std::unique_ptr< DBDI_Base >;
+enum class DBDI_Hierachy
+{
+   DBDI_Derived1,
+   DBDI_Derived2
+};
+
+UP_DBDI_Base Factory( DBDI_Hierachy );
+
+class DBDI_Base
+{
+public:
+   DBDI_Base() {}
+   virtual ~DBDI_Base() {}
+
+   void Print() const { std::cout << _data << std::endl; }
+   virtual void Init() = 0;
+
+   static UP_DBDI_Base Create( DBDI_Hierachy h )
+   {
+      UP_DBDI_Base p = Factory( h );
+      p->Init();
+      return p;
+   }
+
+protected:
+   int _data = -1;
+};
+
+class DBDI_Derived1 : public DBDI_Base
+{
+public:
+   DBDI_Derived1() {}
+   ~DBDI_Derived1() override {}
+
+   virtual void Init() override { _data = 100; }
+};
+
+class DBDI_Derived2 : public DBDI_Base
+{
+public:
+   DBDI_Derived2() {}
+   ~DBDI_Derived2() override {}
+
+   virtual void Init() override { _data = -100; }
+};
+
+UP_DBDI_Base Factory( DBDI_Hierachy h )
+{
+   switch( h )
+   {
+   case DBDI_Hierachy::DBDI_Derived1:
+      return std::make_unique< DBDI_Derived1 >();
+      break;
+
+   case DBDI_Hierachy::DBDI_Derived2:
+      return std::make_unique< DBDI_Derived2 >();
+      break;
+
+   default:
+      return nullptr;
+      break;
+   }
+
+   return nullptr;
+}
+*/
+
+class Super
+{
+public:
+   virtual void foo() const { std::cout << __FUNCSIG__ << std::endl; }
+   void bar() { std::cout << __FUNCSIG__ << std::endl; foo(); }
+
+   Super( int data ) : _data( data ) { std::cout << __FUNCSIG__ << " data " << data << std::endl; } // foo();
+   virtual ~Super() { std::cout << __FUNCSIG__ << std::endl; } // foo();
+
+private:
+   int _data;
+};
+
+class Child : public Super
+{
+private:
+   void foo() const override { std::cout << __FUNCSIG__ << std::endl; }
+
+public:
+   Child( int data ) : Super( data ) { std::cout << __FUNCSIG__ << " data " << data << std::endl; } // foo();
+   ~Child() override { std::cout << __FUNCSIG__ << std::endl; } // foo(); }
+};
+
+void foo()
+{
+   std::unique_ptr< Super > p = std::make_unique< Child >( 100 );
+   if( p )
+   {
+      p->bar();
+   }
+}
+
 int main()
 {
+   //auto p1 = DBDI_Base::Create( DBDI_Hierachy::DBDI_Derived2 );
+   //auto p2 = DBDI_Base::Create( DBDI_Hierachy::DBDI_Derived1 );
+
+   //p1->Print();
+   //p2->Print();
+
+   MyDataStructuresImpl::BinaryTreeNode< int >::CreateBinaryTreeNode( 100 );
+
    return 0;
 }
