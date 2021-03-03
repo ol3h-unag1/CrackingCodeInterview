@@ -28,8 +28,6 @@ private:
       , _rightChild( nullptr )
       , _data( data )
    {}
-
-protected:
    ~BinaryTreeNode() {}
 
 public:   
