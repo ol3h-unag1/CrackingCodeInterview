@@ -28,6 +28,8 @@
 #include "Stack.hpp"
 #include "Tree.hpp"
 
+#include "DBDI_Factory.hpp"
+
 #include "Random.hpp"
 
 #include "Debug.hpp"
@@ -1343,13 +1345,11 @@ void foo()
 
 int main()
 {
-   //auto p1 = DBDI_Base::Create( DBDI_Hierachy::DBDI_Derived2 );
-   //auto p2 = DBDI_Base::Create( DBDI_Hierachy::DBDI_Derived1 );
+   auto p1 = DBDI_Base::Create( DBDI_Hierachy::DBDI_Derived2 );
+   auto p2 = DBDI_Base::Create( DBDI_Hierachy::DBDI_Derived1 );
 
-   //p1->Print();
-   //p2->Print();
-
-   MyDataStructuresImpl::BinaryTreeNode< int >::CreateBinaryTreeNode( 100 );
+   p1->Print();
+   p2->Print();
 
    return 0;
 }
