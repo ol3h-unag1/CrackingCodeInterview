@@ -32,7 +32,7 @@
 
 #include "Random.hpp"
 
-#include "Debug.hpp"
+#include "Util.hpp"
 
 /// sums of cubes
 std::size_t const G_lowerBound = 1;
@@ -1350,6 +1350,9 @@ int main()
 
    p1->Print();
    p2->Print();
+
+   std::cout << type_name< decltype( p1 ) >() << std::endl;
+   std::cout << type_name< decltype( p2 ) >() << std::endl;
 
    return 0;
 }
