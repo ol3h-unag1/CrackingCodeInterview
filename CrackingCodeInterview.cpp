@@ -1311,48 +1311,8 @@ UP_DBDI_Base Factory( DBDI_Hierachy h )
 }
 */
 
-class Super
-{
-public:
-   virtual void foo() const { std::cout << __FUNCSIG__ << std::endl; }
-   void bar() { std::cout << __FUNCSIG__ << std::endl; foo(); }
-
-   Super( int data ) : _data( data ) { std::cout << __FUNCSIG__ << " data " << data << std::endl; } // foo();
-   virtual ~Super() { std::cout << __FUNCSIG__ << std::endl; } // foo();
-
-private:
-   int _data;
-};
-
-class Child : public Super
-{
-private:
-   void foo() const override { std::cout << __FUNCSIG__ << std::endl; }
-
-public:
-   Child( int data ) : Super( data ) { std::cout << __FUNCSIG__ << " data " << data << std::endl; } // foo();
-   ~Child() override { std::cout << __FUNCSIG__ << std::endl; } // foo(); }
-};
-
-void foo()
-{
-   std::unique_ptr< Super > p = std::make_unique< Child >( 100 );
-   if( p )
-   {
-      p->bar();
-   }
-}
-
 int main()
 {
-   auto p1 = DBDI_Base::Create( DBDI_Hierachy::DBDI_Derived2 );
-   auto p2 = DBDI_Base::Create( DBDI_Hierachy::DBDI_Derived1 );
-
-   p1->Print();
-   p2->Print();
-
-   std::cout << type_name< decltype( p1 ) >() << std::endl;
-   std::cout << type_name< decltype( p2 ) >() << std::endl;
 
    return 0;
 }
