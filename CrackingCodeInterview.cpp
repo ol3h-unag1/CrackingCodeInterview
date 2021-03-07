@@ -1241,8 +1241,35 @@ void TestT9Parser()
    }
 }
 
+// Reverse bits
+constexpr int G_bitsInByte = 8;
+template< class T, int bytes = sizeof( T ) >
+std::enable_if_t< std::is_integral_v< T >, T >
+ReverseBits( T number )
+{
+   int bits = bytes * G_bitsInByte;
+   T result = 0;
+   while( bits > 0 )
+   {
+      result |= ( number & 1 ) << ( bits - 1 );
+      number >>= 1;
+      --bits;
+   }
+
+   return result;
+}
+template< class T >
+std::enable_if_t< std::is_integral_v< T >, bool > IsBitwisePalindrome( T number )
+{
+   return number == ReverseBits( number );
+}
+
 
 int main()
 {
+
+
+//   std::cout << std::bitset< G_bitsInByte >( i & 1 ) << std::endl;
+
    return 0;
 }
