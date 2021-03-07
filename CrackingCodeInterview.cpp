@@ -1264,12 +1264,27 @@ std::enable_if_t< std::is_integral_v< T >, bool > IsBitwisePalindrome( T number 
    return number == ReverseBits( number );
 }
 
+// Reverse number lexicographically
+template< class T >
+std::enable_if_t< std::is_integral_v< T >, T > ReverseNumber( T number )
+{
+   T result = 0;
+   while( number )
+   {
+      result += number % 10;
+      result *= 10;
+      number /= 10;
+   }
+
+   result /= 10;
+
+   return result;
+}
 
 int main()
 {
-
-
-//   std::cout << std::bitset< G_bitsInByte >( i & 1 ) << std::endl;
-
+   auto n = 1231234;
+   auto rn = ReverseNumber( n );
+   std::cout << n << " " << rn << std::endl;
    return 0;
 }
