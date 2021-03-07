@@ -1271,19 +1271,16 @@ std::enable_if_t< std::is_integral_v< T >, T > ReverseNumber( T number )
    T result = 0;
    while( number )
    {
-      result += number % 10;
-      result *= 10;
+      result = result * 10 + number % 10;
       number /= 10;
    }
-
-   result /= 10;
 
    return result;
 }
 
 int main()
 {
-   auto n = 1231234;
+   auto n = 123;
    auto rn = ReverseNumber( n );
    std::cout << n << " " << rn << std::endl;
    return 0;
