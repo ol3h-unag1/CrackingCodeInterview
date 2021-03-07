@@ -1266,7 +1266,8 @@ std::enable_if_t< std::is_integral_v< T >, bool > IsBitwisePalindrome( T number 
 
 // Reverse number lexicographically
 template< class T >
-std::enable_if_t< std::is_integral_v< T >, T > ReverseNumber( T number )
+std::enable_if_t< std::is_unsigned_v< T >, T > 
+ReverseNumber( T number )
 {
    T result = 0;
    while( number )
@@ -1280,7 +1281,7 @@ std::enable_if_t< std::is_integral_v< T >, T > ReverseNumber( T number )
 
 int main()
 {
-   auto n = 123;
+   auto n = 1020u;
    auto rn = ReverseNumber( n );
    std::cout << n << " " << rn << std::endl;
    return 0;
