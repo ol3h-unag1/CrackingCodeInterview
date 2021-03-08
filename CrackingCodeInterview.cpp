@@ -1331,12 +1331,41 @@ double TrippleCall( TypeErasure_CallableInterface const& ci )
    return ci( 1, .1 ) + ci( 2, .2 ) + ci( 4, .4 );
 }
 
-void TypeErasureTest()
+template< typename T >
+void TypeErasure_FooBar( std::shared_ptr< T > t )
 {
-   std::cout << TrippleCall( []( double n, double s ) { return n + s + n / 10; } ) << std::endl;
+   std::cout << *t << std::endl;
 }
 
-int main() 
+void TypeErasureTest()
+{
+   // Virtual functions
+   std::vector< TypeErasure_CallableInterface > v;
+   v.push_back( []( double n, double s ) { return n + s + n / 10; } );
+   v.push_back( []( double, double ) { return 1.2345; } );
+   v.push_back( []( double n, double s) { return ( n + s ) / ( n - s ) + 1; } );
+   
+   for( auto const& e : v  )
+   { 
+      std::cout << TrippleCall( e ) << std::endl;
+   }
+   
+   // Function pointers 
+   std::function< void( std::shared_ptr< void > ) > call;
+
+   using TypeErasure_VoidFunc = void( * )( std::shared_ptr< void > );
+   call = reinterpret_cast< TypeErasure_VoidFunc >( TypeErasure_FooBar< std::string > );
+   call( std::make_shared< std::string >( "Hi there!" ) );
+
+   call = reinterpret_cast< TypeErasure_VoidFunc >( TypeErasure_FooBar< int > );
+   call( std::make_shared< int >( 33 ) );
+
+   call = reinterpret_cast< TypeErasure_VoidFunc >( TypeErasure_FooBar< char > );
+   call( std::make_shared< int >( 33 ) );
+}
+
+int main()
 {
    TypeErasureTest();
+
 }
