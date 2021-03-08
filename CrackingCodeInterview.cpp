@@ -1279,65 +1279,54 @@ ReverseNumber( T number )
    return result;
 }
 
-int main()
+
+class Abstract
 {
-   std::cout << "volatile unsigned result = x << y;" << std::endl;
-   volatile unsigned x = 1;
-   volatile unsigned y = 33;
-   volatile unsigned result = x << y;
-   std::cout << "result: " << result << std::endl;
-   std::cout << "------------" << std::endl;
+public:
+   virtual int call( int ) const = 0;
+   virtual ~Abstract(){}
+};
 
-   std::cout << "volatile unsigned result1 = ( x1 << 31 );" << std::endl;
-   volatile unsigned x1 = 1;
-   volatile unsigned result1 = ( x1 << 31 );
-   std::cout << "result: " << result1 << std::endl;
-   std::cout << "------------" << std::endl;
+template< class T >
+class Concrete : public Abstract
+{
+public:
+   explicit Concrete( T&& callback )
+      : _callback( std::move( callback ) )
+   {}
 
-   std::cout << "volatile unsigned result2 = ( x2 << 30 );" << std::endl;
-   volatile unsigned x2 = 0b11;
-   volatile unsigned result2 = ( x2 << 30 );
-   std::cout << "result: " << result2 << std::endl;
-   std::cout << "------------" << std::endl;
+   int call( int x ) const override
+   {
+      return _callback( x );
+   }
 
-   std::cout << "volatile unsigned result3 = ( x3 << 30 );" << std::endl;
-   volatile unsigned x3 = 0b111;
-   volatile unsigned result3 = ( x3 << 30 );
-   std::cout << "result: " << result3 << std::endl;
-   std::cout << "------------" << std::endl;
+private:
+   T _callback;
+};
 
-   std::cout << "volatile unsigned result4 = ( x4 << 31 );" << std::endl;
-   volatile unsigned x4 = -1;
-   volatile unsigned result4 = ( x4 << 31 );
-   std::cout << "result: " << result4 << std::endl;
-   std::cout << "------------" << std::endl;
+class Callable
+{
+public:
+   template< class T >
+   Callable( T callHandler )
+      : _callHandler( std::make_unique< Concrete< T > >( std::move( callHandler ) ) )
+   {}
 
-   std::cout << "volatile unsigned result4 = ( x5 << 30 );" << std::endl;
-   volatile unsigned x5 = -2;
-   volatile unsigned result5 = ( x5 << 30 );
-   std::cout << "result: " << result5 << std::endl;
-   std::cout << "------------" << std::endl;
+   int operator()( int x ) const
+   {
+      return _callHandler->call( x );
+   }
 
-   int one = 1;
-   int mOne = -1;
-   unsigned umOne = -1;
-   std::cout << umOne * one << std::endl;
-   std::cout << mOne * one << std::endl;
-   std::cout << mOne * umOne << std::endl;
-   std::cout << umOne * umOne << std::endl;
-   std::cout << "------------" << std::endl;
+private:
+   std::unique_ptr< Abstract > _callHandler;
+};
 
-   volatile int constexpr x6 = std::numeric_limits< int >::min();
-   volatile int y6 = 7;
-   volatile int result6 = ( x6 >> y6 );
-   std::cout << "Arithmetic shift: " << std::hex << result6 << " " << std::dec << result6 << std::endl;
-   std::cout << "------------" << std::endl;
-   
-   void* volatile src = nullptr;
-   void* volatile dst = nullptr;
-   volatile std::size_t size = 0;
-   memcpy( dst, src, size );
-   std::cout << dst << std::endl;
+int runTwice( Callable const& c )
+{
+   return c( 1 ) + c( 1 );
+}
 
-   return 0;
+int main() 
+{
+   std::cout << runTwice( []( int x ) { return x + 1; } ) << std::endl;
 }
