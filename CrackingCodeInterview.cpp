@@ -1279,54 +1279,64 @@ ReverseNumber( T number )
    return result;
 }
 
-
-class Abstract
+// Type erasure
+class TypeErasure_AbstractInterfaceWrapper
 {
 public:
-   virtual int call( int ) const = 0;
-   virtual ~Abstract(){}
+   virtual double Advance( double number, double step ) const = 0;
+   virtual ~TypeErasure_AbstractInterfaceWrapper() = 0
+   {}
 };
 
-template< class T >
-class Concrete : public Abstract
+template< class CallableType >
+class TypeErasure_ConcreteInterfaceWrapper : public TypeErasure_AbstractInterfaceWrapper
 {
-public:
-   explicit Concrete( T&& callback )
-      : _callback( std::move( callback ) )
+public: 
+   template< class T, std::enable_if_t< std::is_convertible_v< T, CallableType >, int > = 0 >
+   explicit TypeErasure_ConcreteInterfaceWrapper( T&& callable )
+      : _callable( std::move( _callable ) )
    {}
 
-   int call( int x ) const override
+   double Advance( double number, double step ) const override
    {
-      return _callback( x );
+      return _callable( number, step );
+   }
+
+   ~TypeErasure_ConcreteInterfaceWrapper() {}
+
+private:
+   CallableType _callable;
+};
+
+class TypeErasure_CallableInterface
+{
+public:
+   template< class CallableType >
+   TypeErasure_CallableInterface( CallableType&& callable )
+      : _callHandler( std::make_unique< TypeErasure_ConcreteInterfaceWrapper< CallableType > >( callable ) )
+   {}
+
+public:
+   double operator()( double number, double steps ) const
+   {
+      return _callHandler->Advance( number, steps );
    }
 
 private:
-   T _callback;
+   std::unique_ptr< TypeErasure_AbstractInterfaceWrapper > _callHandler;
 };
 
-class Callable
+double TrippleCall( TypeErasure_CallableInterface const& ci )
 {
-public:
-   template< class T >
-   Callable( T callHandler )
-      : _callHandler( std::make_unique< Concrete< T > >( std::move( callHandler ) ) )
-   {}
+   return ci( 1, .1 ) + ci( 2, .2 ) + ci( 4, .4 );
+}
 
-   int operator()( int x ) const
-   {
-      return _callHandler->call( x );
-   }
-
-private:
-   std::unique_ptr< Abstract > _callHandler;
-};
-
-int runTwice( Callable const& c )
+void TypeErasureTest()
 {
-   return c( 1 ) + c( 1 );
+   std::cout << TrippleCall( []( double n, double s ) { return n + s + n / 10; } ) << std::endl;
 }
 
 int main() 
 {
-   std::cout << runTwice( []( int x ) { return x + 1; } ) << std::endl;
+   TypeErasureTest();
 }
