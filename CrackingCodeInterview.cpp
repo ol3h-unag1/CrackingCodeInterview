@@ -1281,8 +1281,50 @@ ReverseNumber( T number )
 
 int main()
 {
-   auto n = 1020u;
-   auto rn = ReverseNumber( n );
-   std::cout << n << " " << rn << std::endl;
+   std::cout << "volatile unsigned result = x << y;" << std::endl;
+   volatile unsigned x = 1;
+   volatile unsigned y = 33;
+   volatile unsigned result = x << y;
+   std::cout << "result: " << result << std::endl;
+   std::cout << "------------" << std::endl;
+
+   std::cout << "volatile unsigned result1 = ( x1 << 31 );" << std::endl;
+   volatile unsigned x1 = 1;
+   volatile unsigned result1 = ( x1 << 31 );
+   std::cout << "result: " << result1 << std::endl;
+   std::cout << "------------" << std::endl;
+
+   std::cout << "volatile unsigned result2 = ( x2 << 30 );" << std::endl;
+   volatile unsigned x2 = 0b11;
+   volatile unsigned result2 = ( x2 << 30 );
+   std::cout << "result: " << result2 << std::endl;
+   std::cout << "------------" << std::endl;
+
+   std::cout << "volatile unsigned result3 = ( x3 << 30 );" << std::endl;
+   volatile unsigned x3 = 0b111;
+   volatile unsigned result3 = ( x3 << 30 );
+   std::cout << "result: " << result3 << std::endl;
+   std::cout << "------------" << std::endl;
+
+   std::cout << "volatile unsigned result4 = ( x4 << 31 );" << std::endl;
+   volatile unsigned x4 = -1;
+   volatile unsigned result4 = ( x4 << 31 );
+   std::cout << "result: " << result4 << std::endl;
+   std::cout << "------------" << std::endl;
+
+   std::cout << "volatile unsigned result4 = ( x5 << 30 );" << std::endl;
+   volatile unsigned x5 = -2;
+   volatile unsigned result5 = ( x5 << 30 );
+   std::cout << "result: " << result5 << std::endl;
+   std::cout << "------------" << std::endl;
+
+   int one = 1;
+   int mOne = -1;
+   unsigned umOne = -1;
+   std::cout << umOne * one << std::endl;
+   std::cout << mOne * one << std::endl;
+   std::cout << mOne * umOne << std::endl;
+   std::cout << umOne * umOne << std::endl;
+
    return 0;
 }
