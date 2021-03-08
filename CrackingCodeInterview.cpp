@@ -1325,6 +1325,19 @@ int main()
    std::cout << mOne * one << std::endl;
    std::cout << mOne * umOne << std::endl;
    std::cout << umOne * umOne << std::endl;
+   std::cout << "------------" << std::endl;
+
+   volatile int constexpr x6 = std::numeric_limits< int >::min();
+   volatile int y6 = 7;
+   volatile int result6 = ( x6 >> y6 );
+   std::cout << "Arithmetic shift: " << std::hex << result6 << " " << std::dec << result6 << std::endl;
+   std::cout << "------------" << std::endl;
+   
+   void* volatile src = nullptr;
+   void* volatile dst = nullptr;
+   volatile std::size_t size = 0;
+   memcpy( dst, src, size );
+   std::cout << dst << std::endl;
 
    return 0;
 }
