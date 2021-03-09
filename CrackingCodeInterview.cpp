@@ -1389,90 +1389,81 @@ void TypeErasureTest()
    AnyVisitorTest();
 }
 
-template< class T, class F >
-inline std::pair< const std::type_index, std::function< void( std::any const& ) >>
-ToAnyVisitor( F const& f )
+template< class T, class Visitor >
+std::pair< std::type_index, std::function< void( std::any const& ) > >
+PairTypeIndex2Visitor( Visitor const& visitor )
 {
-   return {
-       std::type_index( typeid( T ) ),
-       [g = f]( std::any const& a )
-       {
-           if constexpr( std::is_void_v< T > )
-               g();
-           else
-               g( std::any_cast< T const& >( a ) );
-       }
+   return 
+   { 
+      std::type_index( typeid( T ) ), [visitor]( std::any const& any )
+      {
+         if constexpr( std::is_same_v< void, T > )
+         {
+            visitor();
+         }
+         else
+         {
+            visitor( std::any_cast< T const& >( any ) );
+         }
+      } 
+   };  
+}
+
+std::unordered_map < std::type_index, std::function< void( std::any const& ) > >&
+TypeIndex2Visitor()
+{
+   static std::unordered_map < std::type_index, std::function< void( std::any const& ) > > any2visitor
+   {
+      PairTypeIndex2Visitor< void >( []() { std::cout << "void: Any hasn't value!" << std::endl; } ),
+      PairTypeIndex2Visitor< int >( []( auto const& obj ) { std::cout << obj << std::endl; } ),
+      PairTypeIndex2Visitor< std::string >( []( auto const& obj ) { std::cout << obj << std::endl; } ),
+      PairTypeIndex2Visitor< double >( []( auto const& obj ) { std::cout << obj << std::endl; } ),
    };
+
+   return any2visitor;
 }
 
-std::unordered_map< std::type_index, std::function< void( std::any const& ) > >& 
-AnyVisitor()
+void ProcessAny( std::any const& any )
 {
-   static std::unordered_map < std::type_index, std::function< void( std::any const& ) >  >anyVisitor
+   if( auto it = TypeIndex2Visitor().find( std::type_index( any.type() ) ); it != TypeIndex2Visitor().end() )
    {
-      ToAnyVisitor < void > ( [] { std::cout << "{}"; } ),
-      ToAnyVisitor < int > ( []( int x ) { std::cout << x; } ),
-      ToAnyVisitor < unsigned > ( []( unsigned x ) { std::cout << x; } ),
-      ToAnyVisitor < float > ( []( float x ) { std::cout << x; } ),
-      ToAnyVisitor < double > ( []( double x ) { std::cout << x; } ),
-      ToAnyVisitor < char const* > ( []( char const* s ) { std::cout << std::quoted( s ); } ),
-      // ... add more handlers for your types ...
-   };
-   return anyVisitor;
-}
-
-inline void ProcessAny( const std::any& a )
-{
-   if( const auto it = AnyVisitor().find( std::type_index( a.type() ) ); it != AnyVisitor().cend() ) 
-   {
-      it->second( a );
+      it->second( any );
    }
-   else 
+   else
    {
-      std::cout << "Unregistered type " << std::quoted( a.type().name() );
+      std::cout << std::quoted( any.type().name() ) << " is not a registered type!" << std::endl;
    }
 }
 
-template< class T, class F >
-inline void RegisterAnyVisitor( F const& f )
+template< class T, class Visitor >
+void RegisterAnyVisitor( Visitor const& visitor )
 {
-   std::cout << "Register visitor for type " << std::quoted( typeid( T ).name() ) << '\n'; 
-   AnyVisitor().insert( ToAnyVisitor<T>( f ) );
+   TypeIndex2Visitor().insert( PairTypeIndex2Visitor< T >( visitor ) );
 }
 
-class AnyVisitorTestClass
+class TestClasForAnyVisitor
 {
 public:
-   explicit AnyVisitorTestClass( int i )
-      : _data( i )
+   explicit TestClasForAnyVisitor( int data )
+      : _data( data )
    {}
-      
+
+public:
    int GetData() const { return _data; }
-private:
+
+private: 
    int _data;
 };
 
 void AnyVisitorTest()
 {
-   std::vector<std::any> va{ {}, 42, 123u, 3.14159f, 2.71828, "C++17", };
-
-   std::cout << "{ ";
-   for( const std::any& a : va ) 
-   {
-      ProcessAny( a );
-      std::cout << ", ";
-   }
-   std::cout << "}\n";
-
-   ProcessAny( std::any( 0xFULL ) ); //< Unregistered type "y" (unsigned long long)
-   std::cout << '\n';
-
-   RegisterAnyVisitor< unsigned long long >( []( auto x ) { std::cout << std::hex << std::showbase << x; } );
-   ProcessAny( std::any( 0xFULL ) ); //< OK: 0xf
-   std::cout << '\n';
-
-   RegisterAnyVisitor< AnyVisitorTestClass >( []( auto const& x ) { std::cout << std::dec << x.GetData() << std::endl; } );
-   ProcessAny( std::any( AnyVisitorTestClass( -1234 ) ) );
+   ProcessAny( std::any() );
+   ProcessAny( std::any( 123 ) );
+   ProcessAny( std::any( 4.56 ) );
+   ProcessAny( std::any( std::string( "Hello, Any Visitor!" ) ) );
+   ProcessAny( std::any( TestClasForAnyVisitor( 789 ) ) );
+   RegisterAnyVisitor< TestClasForAnyVisitor >( []( auto const& obj ) { std::cout << obj.GetData() << std::endl; } );
+   ProcessAny( std::any( TestClasForAnyVisitor( 789 ) ) );
 }
 
 int main()
