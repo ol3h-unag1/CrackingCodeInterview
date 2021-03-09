@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 #include <cmath>
 
@@ -24,6 +25,10 @@
 
 #include <random>
 
+#include <any>
+#include <typeindex>
+
+
 #include "List.hpp"
 #include "Stack.hpp"
 #include "Tree.hpp"
@@ -33,6 +38,7 @@
 #include "Random.hpp"
 
 #include "Util.hpp"
+#include "CrackingCodeInterview.h"
 
 /// sums of cubes
 std::size_t const G_lowerBound = 1;
@@ -1337,6 +1343,7 @@ void TypeErasure_FooBar( std::shared_ptr< T > t )
    std::cout << *t << std::endl;
 }
 
+void AnyVisitorTest();
 void TypeErasureTest()
 {
    // Virtual functions
@@ -1362,10 +1369,113 @@ void TypeErasureTest()
 
    call = reinterpret_cast< TypeErasure_VoidFunc >( TypeErasure_FooBar< char > );
    call( std::make_shared< int >( 33 ) );
+
+   // std::any
+   int i = 7;
+   std::string str( "Hello, Type Erasure!" );
+   double d = 2.3;
+
+   std::vector< std::any > values;
+   values.push_back( 1 );
+   values.push_back( std::string( "Hello, Type Erasure!" ) );
+   values.push_back( 1.1 );
+
+   for( auto& a : values )
+   {
+      std::cout << a.type().name() << std::endl;
+   }
+
+   // any visitor
+   AnyVisitorTest();
+}
+
+template< class T, class F >
+inline std::pair< const std::type_index, std::function< void( std::any const& ) >>
+ToAnyVisitor( F const& f )
+{
+   return {
+       std::type_index( typeid( T ) ),
+       [g = f]( std::any const& a )
+       {
+           if constexpr( std::is_void_v< T > )
+               g();
+           else
+               g( std::any_cast< T const& >( a ) );
+       }
+   };
+}
+
+std::unordered_map< std::type_index, std::function< void( std::any const& ) > >& 
+AnyVisitor()
+{
+   static std::unordered_map < std::type_index, std::function< void( std::any const& ) >  >anyVisitor
+   {
+      ToAnyVisitor < void > ( [] { std::cout << "{}"; } ),
+      ToAnyVisitor < int > ( []( int x ) { std::cout << x; } ),
+      ToAnyVisitor < unsigned > ( []( unsigned x ) { std::cout << x; } ),
+      ToAnyVisitor < float > ( []( float x ) { std::cout << x; } ),
+      ToAnyVisitor < double > ( []( double x ) { std::cout << x; } ),
+      ToAnyVisitor < char const* > ( []( char const* s ) { std::cout << std::quoted( s ); } ),
+      // ... add more handlers for your types ...
+   };
+   return anyVisitor;
+}
+
+inline void ProcessAny( const std::any& a )
+{
+   if( const auto it = AnyVisitor().find( std::type_index( a.type() ) ); it != AnyVisitor().cend() ) 
+   {
+      it->second( a );
+   }
+   else 
+   {
+      std::cout << "Unregistered type " << std::quoted( a.type().name() );
+   }
+}
+
+template< class T, class F >
+inline void RegisterAnyVisitor( F const& f )
+{
+   std::cout << "Register visitor for type " << std::quoted( typeid( T ).name() ) << '\n'; 
+   AnyVisitor().insert( ToAnyVisitor<T>( f ) );
+}
+
+class AnyVisitorTestClass
+{
+public:
+   explicit AnyVisitorTestClass( int i )
+      : _data( i )
+   {}
+      
+   int GetData() const { return _data; }
+private:
+   int _data;
+};
+
+void AnyVisitorTest()
+{
+   std::vector<std::any> va{ {}, 42, 123u, 3.14159f, 2.71828, "C++17", };
+
+   std::cout << "{ ";
+   for( const std::any& a : va ) 
+   {
+      ProcessAny( a );
+      std::cout << ", ";
+   }
+   std::cout << "}\n";
+
+   ProcessAny( std::any( 0xFULL ) ); //< Unregistered type "y" (unsigned long long)
+   std::cout << '\n';
+
+   RegisterAnyVisitor< unsigned long long >( []( auto x ) { std::cout << std::hex << std::showbase << x; } );
+   ProcessAny( std::any( 0xFULL ) ); //< OK: 0xf
+   std::cout << '\n';
+
+   RegisterAnyVisitor< AnyVisitorTestClass >( []( auto const& x ) { std::cout << std::dec << x.GetData() << std::endl; } );
+   ProcessAny( std::any( AnyVisitorTestClass( -1234 ) ) );
 }
 
 int main()
 {
-   TypeErasureTest();
-
+   AnyVisitorTest();
 }
