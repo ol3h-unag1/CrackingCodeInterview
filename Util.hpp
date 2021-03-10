@@ -4,7 +4,9 @@
 #include <stdexcept>
 #include <cstring>
 #include <ostream>
+#include <chrono>
 
+/// Type name output
 #ifndef _MSC_VER
 #  if __cplusplus < 201103
 #    define CONSTEXPR11_TN
@@ -94,6 +96,7 @@ type_name()
 #endif
 }
 
+
 /// Execution time check
 template< typename JobType >
 void ExecutionTimeCheck( JobType&& job )
@@ -109,3 +112,9 @@ void ExecutionTimeCheck( JobType job, Args&& ... args )
 {
    ExecutionTimeCheck( [&]() { job( std::forward< Args... >( args... ) ); } );
 }
+
+
+/// Common debug output
+#define COUT_FUNCSIG_ENDL std::cout << __FUNCSIG__ << std::endl
+
+#define COUT_FUNCSIG_2SPOT_SPACE std::cout << __FUNCSIG__ << ": "

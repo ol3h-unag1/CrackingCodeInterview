@@ -28,17 +28,19 @@
 #include <any>
 #include <typeindex>
 
-
 #include "List.hpp"
 #include "Stack.hpp"
 #include "Tree.hpp"
+
+#include "Patterns.hpp"
 
 #include "DBDI_Factory.hpp"
 
 #include "Random.hpp"
 
 #include "Util.hpp"
-#include "CrackingCodeInterview.h"
+
+
 
 /// sums of cubes
 std::size_t const G_lowerBound = 1;
@@ -1468,5 +1470,9 @@ void AnyVisitorTest()
 
 int main()
 {
-   AnyVisitorTest();
+   FM_Creator1 c1;
+   FM_Creator2 c2;
+   FM_Test( { c1.CreateProduct(), c2.CreateProduct(), c2.CreateProduct() } );
+
+   std::cout << std::boolalpha;
 }
