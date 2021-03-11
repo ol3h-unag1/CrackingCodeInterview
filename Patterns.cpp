@@ -71,4 +71,21 @@ void Adapter_Test( std::initializer_list< std::unique_ptr< RoundHole > > holes )
    }
 }
 
+//////////////////////////////////////////////////////
+//Bridge://///////////////////////////////////////////
+//////////////////////////////////////////////////////
+
+void Test_Bridge( std::initializer_list<std::unique_ptr<Remote_Interface>> remoteControls )
+{
+   for( auto& rc : remoteControls )
+   {
+      rc->TogglePower();
+      rc->AdvanceChannel( 1 );
+      rc->AdvanceChannel( -2 );
+      rc->SetVolume( 50 );
+      rc->ToggleMute();
+      rc->TogglePower();
+   }
+}
+
 }

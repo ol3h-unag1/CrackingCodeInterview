@@ -1468,11 +1468,11 @@ void AnyVisitorTest()
    ProcessAny( std::any( TestClasForAnyVisitor( 789 ) ) );
 }
 
-
 int main()
 {
    std::cout << std::boolalpha;
 
    using namespace DesignPatternsImpl;
-   Adapter_Test( { std::make_unique< RoundHole >( 100 ), std::make_unique< SquarePegAdapter >( std::make_unique< SquarePeg >( 100 ) ) } );
+
+   Test_Bridge( { std::make_unique< RC >( std::make_unique< TV >() ), std::make_unique< RC >( std::make_unique< Radio >() ) } );
 }
