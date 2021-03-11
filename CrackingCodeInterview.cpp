@@ -1468,11 +1468,11 @@ void AnyVisitorTest()
    ProcessAny( std::any( TestClasForAnyVisitor( 789 ) ) );
 }
 
+
 int main()
 {
-   FM_Creator1 c1;
-   FM_Creator2 c2;
-   FM_Test( { c1.CreateProduct(), c2.CreateProduct(), c2.CreateProduct() } );
-
    std::cout << std::boolalpha;
+
+   using namespace DesignPatternsImpl;
+   Adapter_Test( { std::make_unique< RoundHole >( 100 ), std::make_unique< SquarePegAdapter >( std::make_unique< SquarePeg >( 100 ) ) } );
 }

@@ -4,12 +4,14 @@
 
 #include "Util.hpp"
 
+namespace DesignPatternsImpl
+{
 
 //////////////////////////////////////////////////////
 //Factory Method://///////////////////////////////////
 //////////////////////////////////////////////////////
 
-void FM_Product1::Operation() const
+void Product1::Operation() const
 {
    COUT_FUNCSIG_2SPOT_SPACE;
    if( _dataProvider )
@@ -22,7 +24,7 @@ void FM_Product1::Operation() const
    }
 }
 
-void FM_Product2::Operation() const
+void Product2::Operation() const
 {
    COUT_FUNCSIG_2SPOT_SPACE;
    if( _dataProvider )
@@ -35,24 +37,38 @@ void FM_Product2::Operation() const
    }
 }
 
-std::unique_ptr<FM_Product_Interface> FM_Creator1::CreateProduct() const
+std::unique_ptr< Product_Interface > Creator1::CreateProduct() const
 {
-   auto p1 = std::make_unique< FM_Product1 >();
+   auto p1 = std::make_unique< Product1 >();
    p1->SetDataProvider( []() { return 1; } );
    return p1;
 }
 
-std::unique_ptr<FM_Product_Interface> FM_Creator2::CreateProduct() const
+std::unique_ptr< Product_Interface > Creator2::CreateProduct() const
 {
-   auto p2 = std::make_unique< FM_Product2 >();
+   auto p2 = std::make_unique< Product2 >();
    p2->SetDataProvider( []() { return 2; } );
    return p2;
 }
 
-void FM_Test( std::initializer_list< std::unique_ptr<FM_Product_Interface> > products )
+void Factory_Test( std::initializer_list< std::unique_ptr< Product_Interface > > products )
 {
    for( auto const& p : products )
    {
       p->Operation();
    }
+}
+
+//////////////////////////////////////////////////////
+//Adapter:////////////////////////////////////////////
+//////////////////////////////////////////////////////
+
+void Adapter_Test( std::initializer_list< std::unique_ptr< RoundHole > > holes )
+{
+   for( auto const& h : holes )
+   {
+      std::cout << h << ": has radius of " << h->GetRadius() << std::endl;
+   }
+}
+
 }
