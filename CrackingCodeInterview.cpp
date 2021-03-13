@@ -1300,7 +1300,7 @@ template< class CallableType >
 class TypeErasure_ConcreteInterfaceWrapper : public TypeErasure_AbstractInterfaceWrapper
 {
 public: 
-   template< class T, std::enable_if_t< std::is_convertible_v< T, CallableType >, int > = 0 >
+   template< class T, class = std::enable_if_t< std::is_convertible_v< T, CallableType >, int > >
    explicit TypeErasure_ConcreteInterfaceWrapper( T&& callable )
       : _callable( std::move( _callable ) )
    {}
@@ -1309,8 +1309,6 @@ public:
    {
       return _callable( number, step );
    }
-
-   ~TypeErasure_ConcreteInterfaceWrapper() {}
 
 private:
    CallableType _callable;
@@ -1468,11 +1466,39 @@ void AnyVisitorTest()
    ProcessAny( std::any( TestClasForAnyVisitor( 789 ) ) );
 }
 
+using llu = long long unsigned;
+
+llu fibByIndexImpl( llu n, std::unordered_map< llu, llu >& cache );
+llu fibByIndex( llu n )
+{
+   std::unordered_map< llu, llu > cache;
+   return fibByIndexImpl( n, cache );
+}
+
+llu fibByIndexImpl( llu n, std::unordered_map< llu, llu >& cache )
+{
+   if( auto it = cache.find( n ); it != cache.end() )
+   {
+      return it->second;
+   }
+
+   if( n == 0 )
+   {
+      return 0;
+   }
+   if( ( n == 1 ) || ( n == 2 ) )
+   {
+      return 1;
+   }  
+
+   cache[ n ] = fibByIndexImpl( n - 1, cache ) + fibByIndexImpl( n - 2, cache );
+   return cache[ n ];
+}
+
 int main()
 {
    std::cout << std::boolalpha;
-
    using namespace DesignPatternsImpl;
 
-   Test_Bridge( { std::make_unique< RC >( std::make_unique< TV >() ), std::make_unique< RC >( std::make_unique< Radio >() ) } );
+   std::cout << fibByIndex( 50 ) << std::endl;
 }
