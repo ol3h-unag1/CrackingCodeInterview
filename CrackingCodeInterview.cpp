@@ -1468,15 +1468,22 @@ void AnyVisitorTest()
 
 using llu = long long unsigned;
 
-llu fibByIndexImpl( llu n, std::unordered_map< llu, llu >& cache );
-llu fibByIndex( llu n )
+int callNum = 0;
+llu GetFibonacciTermByIndexImpl( llu n, std::unordered_map< llu, llu >& cache );
+llu GetFibonacciTermByIndex( llu n )
 {
+   if( n > 93 )
+   {
+      return 0;
+   }
+
    std::unordered_map< llu, llu > cache;
-   return fibByIndexImpl( n, cache );
+   return GetFibonacciTermByIndexImpl( n, cache );
 }
 
-llu fibByIndexImpl( llu n, std::unordered_map< llu, llu >& cache )
+llu GetFibonacciTermByIndexImpl( llu n, std::unordered_map< llu, llu >& cache )
 {
+   callNum++;
    if( auto it = cache.find( n ); it != cache.end() )
    {
       return it->second;
@@ -1491,7 +1498,7 @@ llu fibByIndexImpl( llu n, std::unordered_map< llu, llu >& cache )
       return 1;
    }  
 
-   cache[ n ] = fibByIndexImpl( n - 1, cache ) + fibByIndexImpl( n - 2, cache );
+   cache[ n ] = GetFibonacciTermByIndexImpl( n - 1, cache ) + GetFibonacciTermByIndexImpl( n - 2, cache );
    return cache[ n ];
 }
 
@@ -1500,5 +1507,5 @@ int main()
    std::cout << std::boolalpha;
    using namespace DesignPatternsImpl;
 
-   std::cout << fibByIndex( 50 ) << std::endl;
+   std::cout << GetFibonacciTermByIndex( 93 ) << " " << callNum << std::endl;
 }
