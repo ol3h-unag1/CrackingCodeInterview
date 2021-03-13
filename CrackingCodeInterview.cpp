@@ -1507,5 +1507,16 @@ int main()
    std::cout << std::boolalpha;
    using namespace DesignPatternsImpl;
 
-   std::cout << GetFibonacciTermByIndex( 93 ) << " " << callNum << std::endl;
+   try
+   {
+      throw std::string( "Hello, exception!" );
+   }
+   catch( std::string& s )
+   {
+      std::cout << s << std::endl;
+   }
+   catch( ... )
+   {
+
+   }
 }
