@@ -1573,7 +1573,7 @@ int main()
       auto duration = durationSumm;
       for( auto i = 0; i < testSize; ++i )
       {
-         auto const&[ duration, result ] = ExecutionDurationCheck( GetFibonacciTermByIndex_Recusion, 93 );
+         auto const&[ result, duration ] = ExecutionDurationCheck( GetFibonacciTermByIndex_Recusion, 93 );
          durationSumm += duration;
          std::cout << duration << std::endl;
       }
@@ -1583,7 +1583,7 @@ int main()
       durationSumm = 0;
       for( auto i = 0; i < testSize; ++i )
       {
-         auto const& [duration, result] = ExecutionDurationCheck( GetFibonacciTermByIndex_Iteration, 93 );
+         auto const& [ result, duration ] = ExecutionDurationCheck( GetFibonacciTermByIndex_Iteration, 93 );
          durationSumm += duration;
          std::cout << duration << std::endl;
       }
