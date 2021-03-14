@@ -1542,9 +1542,9 @@ int main()
       decltype( std::declval< std::chrono::nanoseconds >().count() ) summ = 0;
       for( auto i = 0; i < testSize; ++i )
       {
-         auto duration = ExecutionTimeCheck( GetFibonacciTermByIndex_Recusion, 93 );
-         summ += duration;
-         std::cout << duration << std::endl;
+         auto durationJobResultPair = ExecutionDurationCheck( GetFibonacciTermByIndex_Recusion, 93 );
+         summ += durationJobResultPair.first;
+         std::cout << durationJobResultPair.first << std::endl;
       }
 
       std::cout << "Recursion average time is: " << summ / testSize << "\n-------------" << std::endl;
@@ -1552,9 +1552,9 @@ int main()
       summ = 0;
       for( auto i = 0; i < testSize; ++i )
       {
-         auto duration = ExecutionTimeCheck( GetFibonacciTermByIndex_Iteration, 93 );
-         summ += duration;
-         std::cout << duration << std::endl;
+         auto durationJobResultPair = ExecutionDurationCheck( GetFibonacciTermByIndex_Iteration, 93 );
+         summ += durationJobResultPair.first;
+         std::cout << durationJobResultPair.first << std::endl;
       }
 
       std::cout << "Iteration average time is: " << summ / testSize << "\n-------------" << std::endl;
