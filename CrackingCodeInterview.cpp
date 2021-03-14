@@ -1530,6 +1530,33 @@ llu GetFibonacciTermByIndex_Iteration( llu index )
    return fibAtIndex;
 }
 
+void Foo( llu& result )
+{
+   llu summ = 0;
+   for( int i = 0; i < 100; ++i )
+   {
+      summ += i;
+      summ *= 2;
+      summ /= 3;
+   }
+
+   result = summ;
+}
+
+llu G_result = 0;
+void Bar()
+{
+   llu summ = 0;
+   for( int i = 0; i < 100; ++i )
+   {
+      summ += i;
+      summ *= 2;
+      summ /= 3;
+   }
+
+   G_result = summ;
+}
+
 int main()
 {
    std::cout << std::boolalpha;
@@ -1567,5 +1594,15 @@ int main()
       std::cout << GetFibonacciTermByIndex_Iteration( 100) << std::endl;
    }
 
+   if constexpr( true )
+   {
+      llu res = 0;
+      std::cout << ExecutionDurationCheck( Foo, res ) << std::endl;
+      std::cout << res << std::endl;
+
+      
+      std::cout << ExecutionDurationCheck( Bar ) << std::endl;
+      std::cout << G_result << std::endl;
+   }
 
 }

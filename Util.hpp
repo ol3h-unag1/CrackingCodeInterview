@@ -99,16 +99,27 @@ type_name()
 
 
 /// Execution time check
+// non void job result
 template< typename JobType, class Duration = std::chrono::nanoseconds, std::enable_if_t< !std::is_same_v< std::invoke_result_t< JobType >, void > >* = nullptr >
 auto ExecutionDurationCheck( JobType&& job )
 {
-   
    auto t1 = std::chrono::high_resolution_clock::now();
    auto jobResult = job();
    auto t2 = std::chrono::high_resolution_clock::now();
    auto duration = std::chrono::duration_cast< std::chrono::nanoseconds >( t2 - t1 ).count();
 
-   return std::make_pair( duration, jobResult );
+   return std::make_pair( jobResult, duration );
+}
+
+// void job result
+template< typename JobType, class Duration = std::chrono::nanoseconds, std::enable_if_t< std::is_same_v< std::invoke_result_t< JobType >, void >, int >* = nullptr >
+auto ExecutionDurationCheck( JobType&& job )
+{
+   auto t1 = std::chrono::high_resolution_clock::now();
+   job();
+   auto t2 = std::chrono::high_resolution_clock::now();
+
+   return std::chrono::duration_cast< std::chrono::nanoseconds >( t2 - t1 ).count();
 }
 
 template< class JobType, class ... Args, class Duration = std::chrono::nanoseconds >
@@ -116,6 +127,7 @@ auto ExecutionDurationCheck( JobType job, Args&& ... args )
 {
    return ExecutionDurationCheck( [&]() { return job( std::forward< Args... >( args... ) ); } );
 }
+
 
 
 /// Common debug output
