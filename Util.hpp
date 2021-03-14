@@ -98,19 +98,21 @@ type_name()
 
 
 /// Execution time check
-template< typename JobType >
-void ExecutionTimeCheck( JobType&& job )
+template< typename JobType, class Duration = std::chrono::nanoseconds >
+auto ExecutionTimeCheck( JobType&& job )
 {
    auto t1 = std::chrono::high_resolution_clock::now();
    job();
    auto t2 = std::chrono::high_resolution_clock::now();
-   std::cout << "job execution took " << std::chrono::duration_cast< std::chrono::microseconds >( t2 - t1 ).count() << " microseconds. " << std::endl;
+   //std::cout << "job execution took " << std::chrono::duration_cast< Duration >( t2 - t1 ).count() << " nanoseconds. " << std::endl;
+
+   return std::chrono::duration_cast< std::chrono::nanoseconds >( t2 - t1 ).count();
 }
 
-template< typename JobType, typename ... Args >
-void ExecutionTimeCheck( JobType job, Args&& ... args )
+template< class JobType, class ... Args, class Duration = std::chrono::nanoseconds >
+auto ExecutionTimeCheck( JobType job, Args&& ... args )
 {
-   ExecutionTimeCheck( [&]() { job( std::forward< Args... >( args... ) ); } );
+   return ExecutionTimeCheck( [&]() { job( std::forward< Args... >( args... ) ); } );
 }
 
 

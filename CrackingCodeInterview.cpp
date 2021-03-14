@@ -28,6 +28,8 @@
 #include <any>
 #include <typeindex>
 
+#include <mutex>
+
 #include "List.hpp"
 #include "Stack.hpp"
 #include "Tree.hpp"
@@ -161,7 +163,8 @@ void BalanceHeapsFree( HeapType1& from, HeapType2& to )
       from.pop();
    }
 }
-double ArrayMedian( std::vector< int > const& sourceNumbers )
+template< class ElementType >
+double ArrayMedian( std::vector< ElementType > const& sourceNumbers )
 {
    if( sourceNumbers.empty() )
    {
@@ -1467,39 +1470,64 @@ void AnyVisitorTest()
 }
 
 using llu = long long unsigned;
-
-int callNum = 0;
-llu GetFibonacciTermByIndexImpl( llu n, std::unordered_map< llu, llu >& cache );
-llu GetFibonacciTermByIndex( llu n )
+llu GetFibonacciTermByIndex_RecursionImpl( llu index, std::unordered_map< llu, llu >& cache );
+llu GetFibonacciTermByIndex_Recusion( llu index )
 {
-   if( n > 93 )
+   if( index > 93 )
    {
-      return 0;
+      return std::numeric_limits< llu >::max();
    }
 
    std::unordered_map< llu, llu > cache;
-   return GetFibonacciTermByIndexImpl( n, cache );
+   return GetFibonacciTermByIndex_RecursionImpl( index, cache );
 }
-
-llu GetFibonacciTermByIndexImpl( llu n, std::unordered_map< llu, llu >& cache )
+llu GetFibonacciTermByIndex_RecursionImpl( llu index, std::unordered_map< llu, llu >& cache )
 {
-   callNum++;
-   if( auto it = cache.find( n ); it != cache.end() )
+   if( auto it = cache.find( index ); it != cache.end() )
    {
       return it->second;
    }
 
-   if( n == 0 )
+   if( index == 0 )
    {
       return 0;
    }
-   if( ( n == 1 ) || ( n == 2 ) )
+   if( index < 3 )
    {
       return 1;
    }  
 
-   cache[ n ] = GetFibonacciTermByIndexImpl( n - 1, cache ) + GetFibonacciTermByIndexImpl( n - 2, cache );
-   return cache[ n ];
+   cache[ index ] = GetFibonacciTermByIndex_RecursionImpl( index - 1, cache ) + GetFibonacciTermByIndex_RecursionImpl( index - 2, cache );
+   return cache[ index ];
+}
+
+llu GetFibonacciTermByIndex_Iteration( llu index )
+{
+   if( index == 0 )
+   {
+      return 0;
+   }
+   if( index < 3 )
+   {
+      return 1;
+   }
+   if( index > 93 )
+   {
+      return std::numeric_limits< llu >::max();
+   }
+
+   llu fibAtIndexMinus1 = 1; // term at index 2
+   llu fibAtIndex = fibAtIndexMinus1 + 1; // term at index 1 + term at index 2 = term at index 3
+   // f( n ) = f( n - 1 ) + f( n - 2 )
+   // f( n + 1 ) = f( n ) + f( n - 1 )
+   for( llu k = 3; k < index; ++k )
+   {
+      llu nextFib = fibAtIndex + fibAtIndexMinus1;
+      fibAtIndexMinus1 = fibAtIndex;
+      fibAtIndex = nextFib;
+   }
+
+   return fibAtIndex;
 }
 
 int main()
@@ -1507,16 +1535,37 @@ int main()
    std::cout << std::boolalpha;
    using namespace DesignPatternsImpl;
 
-   try
+   if( true )
    {
-      throw std::string( "Hello, exception!" );
-   }
-   catch( std::string& s )
-   {
-      std::cout << s << std::endl;
-   }
-   catch( ... )
-   {
+      auto const testSize = 15;
 
+      decltype( std::declval< std::chrono::nanoseconds >().count() ) summ = 0;
+      for( auto i = 0; i < testSize; ++i )
+      {
+         auto duration = ExecutionTimeCheck( GetFibonacciTermByIndex_Recusion, 93 );
+         summ += duration;
+         std::cout << duration << std::endl;
+      }
+
+      std::cout << "Recursion average time is: " << summ / testSize << "\n-------------" << std::endl;
+      
+      summ = 0;
+      for( auto i = 0; i < testSize; ++i )
+      {
+         auto duration = ExecutionTimeCheck( GetFibonacciTermByIndex_Iteration, 93 );
+         summ += duration;
+         std::cout << duration << std::endl;
+      }
+
+      std::cout << "Iteration average time is: " << summ / testSize << "\n-------------" << std::endl;
+      summ = 0;
    }
+
+   if constexpr( false )
+   {
+      std::cout << GetFibonacciTermByIndex_Recusion( 100 ) << std::endl;
+      std::cout << GetFibonacciTermByIndex_Iteration( 100) << std::endl;
+   }
+
+
 }
