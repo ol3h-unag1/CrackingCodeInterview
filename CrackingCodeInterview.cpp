@@ -1565,7 +1565,7 @@ int main()
    using namespace std::string_literals;
    using namespace DesignPatternsImpl;
 
-   if( true )
+   if( false )
    {
       auto const testSize = 15;
 
@@ -1608,7 +1608,7 @@ int main()
       std::cout << G_result  << "\n-------------" << std::endl;
    }
 
-   if( true )
+   if( false )
    {
       class Test
       {
@@ -1626,7 +1626,7 @@ int main()
 
    }
 
-   if( true )
+   if( false )
    {
       std::set< int > digits = { 1, 2, 3, 5, 6 ,7, 8, 9, 0 }; // missed 4
       for( int i = 0; i < 10; ++i )
@@ -1637,6 +1637,75 @@ int main()
             std::cout << "Inserted: " << *it << std::endl;
          }
       }
+   }
+
+   if( true )
+   {
+      class Base
+      {
+         std::string _str;
+
+      public:
+         Base() 
+         {
+            COUT_FUNCSIG_2SPOT_SPACE << this << std::endl;
+         }
+
+         Base( Base const& from )
+            : _str( from._str)
+         {
+            COUT_FUNCSIG_2SPOT_SPACE << this << " | source : " << &from << std::endl;
+         }
+
+         Base( Base&& from ) noexcept
+            : _str( std::move( from._str ) )
+         {
+            COUT_FUNCSIG_2SPOT_SPACE << this << " | source : " << &from << std::endl;
+         }
+
+         virtual ~Base() 
+         {
+            COUT_FUNCSIG_2SPOT_SPACE << this << std::endl;
+         }
+         
+      public:
+         auto GetStr() const { return _str; }
+      };
+
+      class Derived : public Base
+      {
+      public:
+         Derived()
+         {
+            COUT_FUNCSIG_2SPOT_SPACE << this << std::endl;
+         }
+
+         Derived( Derived const& from )
+         {
+            COUT_FUNCSIG_2SPOT_SPACE << this << " | source : " << &from << std::endl;
+         }
+
+         Derived( Derived&& from ) noexcept
+         {
+            COUT_FUNCSIG_2SPOT_SPACE << this << " | source : " << &from << std::endl;
+         }
+
+         virtual ~Derived()
+         {
+            COUT_FUNCSIG_2SPOT_SPACE << this << std::endl;
+         }
+
+      };
+
+      auto lam = []()
+      {
+         Derived d;
+         std::cout << "----------------" << std::endl;
+         auto b = static_cast< Base >( d );
+         std::cout << "----------------" << std::endl;
+      };
+
+      lam();
    }
 
 }
