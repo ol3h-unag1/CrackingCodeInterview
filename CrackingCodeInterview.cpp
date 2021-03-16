@@ -32,6 +32,9 @@
 
 #include <mutex>
 
+#include "Random.hpp"
+#include "Util.hpp"
+
 #include "List.hpp"
 #include "Stack.hpp"
 #include "Tree.hpp"
@@ -39,10 +42,6 @@
 #include "Patterns.hpp"
 
 #include "DBDI_Factory.hpp"
-
-#include "Random.hpp"
-
-#include "Util.hpp"
 
 
 
@@ -1532,180 +1531,10 @@ llu GetFibonacciTermByIndex_Iteration( llu index )
    return fibAtIndex;
 }
 
-void Foo( llu& result )
-{
-   llu summ = 0;
-   for( int i = 0; i < 100; ++i )
-   {
-      summ += i;
-      summ *= 2;
-      summ /= 3;
-   }
-
-   result = summ;
-}
-
-llu G_result = 0;
-void Bar()
-{
-   llu summ = 0;
-   for( int i = 0; i < 100; ++i )
-   {
-      summ += i;
-      summ *= 2;
-      summ /= 3;
-   }
-
-   G_result = summ;
-}
 
 int main()
 {
    std::cout << std::boolalpha;
    using namespace std::string_literals;
-   using namespace DesignPatternsImpl;
-
-   if( false )
-   {
-      auto const testSize = 15;
-
-      decltype( std::declval< std::chrono::nanoseconds >().count() ) durationSumm = 0;
-      auto duration = durationSumm;
-      for( auto i = 0; i < testSize; ++i )
-      {
-         auto const&[ result, duration ] = ExecutionDurationCheck( GetFibonacciTermByIndex_Recusion, 93 );
-         durationSumm += duration;
-         std::cout << duration << std::endl;
-      }
-
-      std::cout << "Recursion average time is: " << durationSumm / testSize << "\n-------------" << std::endl;
-      
-      durationSumm = 0;
-      for( auto i = 0; i < testSize; ++i )
-      {
-         auto const& [ result, duration ] = ExecutionDurationCheck( GetFibonacciTermByIndex_Iteration, 93 );
-         durationSumm += duration;
-         std::cout << duration << std::endl;
-      }
-
-      std::cout << "Iteration average time is: " << durationSumm / testSize << "\n-------------" << std::endl;
-      durationSumm = 0;
-   }
-
-   if constexpr( false )
-   {
-      std::cout << GetFibonacciTermByIndex_Recusion( 100 ) << std::endl;
-      std::cout << GetFibonacciTermByIndex_Iteration( 100) << std::endl;
-   }
-
-   if constexpr( false )
-   {
-      llu res = 0;
-      std::cout << ExecutionDurationCheck( Foo, res ) << std::endl;
-      std::cout << res << "\n-------------" << std::endl;
-      
-      std::cout << ExecutionDurationCheck( Bar ) << std::endl;
-      std::cout << G_result  << "\n-------------" << std::endl;
-   }
-
-   if( false )
-   {
-      class Test
-      {
-         std::string str = "Hello, structured binding";
-      public:
-         auto GetStr() const { return str; }
-      };
-
-      auto lam = []( bool b ) { return std::make_pair( Test(), b ); };
-      auto const& [test, flag] = lam( true );
-      if( flag )
-      {
-         std::cout << test.GetStr() << std::endl;
-      }
-
-   }
-
-   if( false )
-   {
-      std::set< int > digits = { 1, 2, 3, 5, 6 ,7, 8, 9, 0 }; // missed 4
-      for( int i = 0; i < 10; ++i )
-      {
-         auto const& [it, result] = digits.insert( i );
-         if( result )
-         {
-            std::cout << "Inserted: " << *it << std::endl;
-         }
-      }
-   }
-
-   if( true )
-   {
-      class Base
-      {
-         std::string _str;
-
-      public:
-         Base() 
-         {
-            COUT_FUNCSIG_2SPOT_SPACE << this << std::endl;
-         }
-
-         Base( Base const& from )
-            : _str( from._str)
-         {
-            COUT_FUNCSIG_2SPOT_SPACE << this << " | source : " << &from << std::endl;
-         }
-
-         Base( Base&& from ) noexcept
-            : _str( std::move( from._str ) )
-         {
-            COUT_FUNCSIG_2SPOT_SPACE << this << " | source : " << &from << std::endl;
-         }
-
-         virtual ~Base() 
-         {
-            COUT_FUNCSIG_2SPOT_SPACE << this << std::endl;
-         }
-         
-      public:
-         auto GetStr() const { return _str; }
-      };
-
-      class Derived : public Base
-      {
-      public:
-         Derived()
-         {
-            COUT_FUNCSIG_2SPOT_SPACE << this << std::endl;
-         }
-
-         Derived( Derived const& from )
-         {
-            COUT_FUNCSIG_2SPOT_SPACE << this << " | source : " << &from << std::endl;
-         }
-
-         Derived( Derived&& from ) noexcept
-         {
-            COUT_FUNCSIG_2SPOT_SPACE << this << " | source : " << &from << std::endl;
-         }
-
-         virtual ~Derived()
-         {
-            COUT_FUNCSIG_2SPOT_SPACE << this << std::endl;
-         }
-
-      };
-
-      auto lam = []()
-      {
-         Derived d;
-         std::cout << "----------------" << std::endl;
-         auto b = static_cast< Base >( d );
-         std::cout << "----------------" << std::endl;
-      };
-
-      lam();
-   }
-
+   
 }
