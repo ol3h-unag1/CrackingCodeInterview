@@ -1304,7 +1304,7 @@ template< class CallableType >
 class TypeErasure_ConcreteInterfaceWrapper : public TypeErasure_AbstractInterfaceWrapper
 {
 public: 
-   template< class T, class = std::enable_if_t< std::is_convertible_v< T, CallableType >, int > >
+   template< class T, class = std::enable_if_t< std::is_convertible_v< T, CallableType > > >
    explicit TypeErasure_ConcreteInterfaceWrapper( T&& callable )
       : _callable( std::move( _callable ) )
    {}
@@ -1342,7 +1342,7 @@ double TrippleCall( TypeErasure_CallableInterface const& ci )
 }
 
 template< typename T >
-void TypeErasure_FooBar( std::shared_ptr< T > t )
+void TypeErasure_FunctionPointers( std::shared_ptr< T > t )
 {
    std::cout << *t << std::endl;
 }
@@ -1365,13 +1365,13 @@ void TypeErasureTest()
    std::function< void( std::shared_ptr< void > ) > call;
 
    using TypeErasure_VoidFunc = void( * )( std::shared_ptr< void > );
-   call = reinterpret_cast< TypeErasure_VoidFunc >( TypeErasure_FooBar< std::string > );
+   call = reinterpret_cast< TypeErasure_VoidFunc >( TypeErasure_FunctionPointers< std::string > );
    call( std::make_shared< std::string >( "Hi there!" ) );
 
-   call = reinterpret_cast< TypeErasure_VoidFunc >( TypeErasure_FooBar< int > );
+   call = reinterpret_cast< TypeErasure_VoidFunc >( TypeErasure_FunctionPointers< int > );
    call( std::make_shared< int >( 33 ) );
 
-   call = reinterpret_cast< TypeErasure_VoidFunc >( TypeErasure_FooBar< char > );
+   call = reinterpret_cast< TypeErasure_VoidFunc >( TypeErasure_FunctionPointers< char > );
    call( std::make_shared< int >( 33 ) );
 
    // std::any
@@ -1532,9 +1532,70 @@ llu GetFibonacciTermByIndex_Iteration( llu index )
 }
 
 
+
+#include <vector>
+
+template< class T >
+struct IsAType {};
+
+template< class T >
+class MyVectorPublic : public std::vector< T >
+{
+   using Super = std::vector< T >;
+
+public:
+   using Super::vector;
+
+   using Super::at;
+   using Super::push_back;
+
+   using Super::iterator;
+   // IsAType< Super::vector > t; // 
+};
+
+template< class T >
+class MyVectorProtected : protected std::vector< T >
+{
+   using Super = std::vector< T >;
+
+public:
+   using Super::vector;
+   using stdvec = typename Super::vector;
+
+   using Super::at;
+   using Super::push_back;
+
+   using Super::iterator;
+   // IsAType< Super::vector > t; // C2923
+};
+
+template< class T >
+class MyVectorPrivate : private std::vector< T >
+{
+   using Super = std::vector< T >;
+
+public:
+   using Super::vector;
+   using stdvec = typename Super::vector;
+
+   using Super::at; // function
+   using Super::push_back; // function
+
+
+   using Super::iterator; // type 
+   // IsAType< Super::vector > t; // C2923
+};
+
+
 int main()
 {
-   std::cout << std::boolalpha;
-   using namespace std::string_literals;
-   
+   auto vecPub = MyVectorPublic< int >::vector();
+   //auto vecProt = MyVectorProtected< int >::vector(); // C2247
+   //auto vecPriv = MyVectorPrivate< int >::vector(); // C2247
+   auto vecProt = MyVectorProtected< int >::stdvec();
+   auto vecPriv = MyVectorPrivate< int >::stdvec();
+
+   auto itPub = MyVectorPublic< int >::iterator();
+   auto itProt = MyVectorProtected< int >::iterator();
+   auto itPriv = MyVectorPrivate< int >::iterator();
 }
