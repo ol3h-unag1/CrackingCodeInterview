@@ -1531,38 +1531,42 @@ llu GetFibonacciTermByIndex_Iteration( llu index )
    return fibAtIndex;
 }
 
-template< class Container >
-void Allocate( Container& vec )
-{
-   for( typename Container::size_type i = 0; i < vec.size(); ++i )
-   {
-      vec[ i ] = new std::remove_reference_t< std::remove_pointer_t < Container::value_type > >;
-   };
-}
-
-template< class Container >
-void Deallocate( Container& vec )
-{
-   for( typename Container::size_type i = 0; i < vec.size(); ++i )
-   {
-      delete vec[ i ];
-   };
-}
 
 int main()
 {
    std::cout << std::boolalpha;
    using namespace std::string_literals;
 
-   constexpr auto capacity = 1024;
-   std::vector< int* > intPointers;
-   intPointers.resize( 1024 );
+   struct Strint
+   {
+      Strint( std::string str, int i )
+         : _str( std::move( str )) 
+         , _i( i )
+      {}
 
-   auto lamAll = [&]() { Allocate( intPointers );  };
-   std::cout << ExecutionDurationCheck( lamAll  ) << std::endl;
+      std::string _str;
+      int _i;
+   };
 
-   auto lamDea = [&]() { Deallocate( intPointers );  };
-   std::cout << ExecutionDurationCheck( lamDea ) << std::endl;
+   using SizeType = std::vector< Strint >::size_type;
+   auto size = std::vector< Strint >::size_type( 128 );
+   std::vector< Strint > source;
+   source.reserve( size );
+   for( SizeType i = 0; i < size; ++i )
+   {
+      std::stringstream ss;
+      ss << i << i;
+      source.emplace_back(  ss.str(), ( static_cast< int >( i ) - static_cast< int >( size ) ) );
+   }
 
+   std::for_each( source.begin(), source.end(), []( auto& s ) { std::cout << "str: " << s._str << " | int: " << s._i << std::endl; } );
+   
+   std::vector< std::string > target;
+   target.reserve( size );
+   std::transform( source.begin(), source.end(), std::back_inserter( target ), []( auto& strint ) { return strint._str.substr(0, strint._str.size() / 2 ); } ); 
 
+   std::for_each( target.begin(), target.end(), []( auto& s ) { std::cout << "str: " << s << std::endl; } );
+
+   std::vector< int > numbers;
+   numbers.insert( numbers.begin(), 1 );
 }
