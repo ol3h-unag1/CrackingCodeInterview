@@ -1531,20 +1531,53 @@ llu GetFibonacciTermByIndex_Iteration( llu index )
    return fibAtIndex;
 }
 
-template< class Iter, class T, class Func >
-void Split( Iter first, Iter last, T const& t, Func f )
+class Asteroid;
+class SpaceShip
 {
-   while( true )
-   {
-      Iter found = std::find( first, last, t );
-      f( first, found );
-      if ( found == last )
-      {
-         break;
-      }
+public:
+   virtual void Collide( Asteroid& );
+};
 
-      first = ++found;
+class Apollo : public SpaceShip
+{
+public:
+   void Collide( Asteroid& ) override;
+};
+
+class Asteroid
+{
+public:
+   virtual void Collide( SpaceShip& ) 
+   {
+      COUT_FUNCSIG_ENDL;
    }
+   virtual void Collide( Apollo& )
+   {
+      COUT_FUNCSIG_ENDL;
+   }
+};
+
+class ExplosiveAst : public Asteroid
+{
+public:
+   void Collide( SpaceShip& ) override
+   {
+      COUT_FUNCSIG_ENDL;
+   }
+   void Collide( Apollo& ) override
+   {
+      COUT_FUNCSIG_ENDL;
+   }
+};
+
+void SpaceShip::Collide( Asteroid& a)
+{
+   a.Collide( *this );
+}
+
+void Apollo::Collide( Asteroid& a)
+{
+   a.Collide( *this );
 }
 
 int main()
@@ -1552,32 +1585,19 @@ int main()
    std::cout << std::boolalpha;
    using namespace std::string_literals;
 
+   SpaceShip sp;
+   Apollo ap;
+   SpaceShip& spRef1 = sp;
+   SpaceShip& spRef2 = ap;
 
-   std::vector< int > numbers( 8 );
-   for( int i = 0; i < numbers.size(); ++i )
-   {
-      if( i % 2 != 0 )
-      {
-         numbers[ i ] = ( i + 1 ) * 10;
-      }
-   }  
-   
-   auto lam = []( auto left, auto right )
-   {
-      bool printed = false;
-      for( ; left != right; ++left )
-      {
-         std::cout << *left << " ";
-         printed = true;
-      }
-      if( printed )
-      {
-         std::cout << std::endl;
-      }
-   };
+   Asteroid as;
+   ExplosiveAst exp;
+   Asteroid& asRef1 = as;
+   Asteroid& asRef2 = exp;
 
-   std::cout << "Source: ";
-   lam( numbers.begin(), numbers.end() );
-   std::cout << "Splited: ";
-   Split( numbers.begin(), numbers.end(), 0, lam );
-}  
+   spRef1.Collide( asRef1 );
+   spRef1.Collide( asRef2 );
+
+   spRef2.Collide( asRef1 );
+   spRef2.Collide( asRef2 );
+}
