@@ -1531,71 +1531,38 @@ llu GetFibonacciTermByIndex_Iteration( llu index )
    return fibAtIndex;
 }
 
-
-
-#include <vector>
-
-template< class T >
-struct IsAType {};
-
-template< class T >
-class MyVectorPublic : public std::vector< T >
+template< class Container >
+void Allocate( Container& vec )
 {
-   using Super = std::vector< T >;
+   for( typename Container::size_type i = 0; i < vec.size(); ++i )
+   {
+      vec[ i ] = new std::remove_reference_t< std::remove_pointer_t < Container::value_type > >;
+   };
+}
 
-public:
-   using Super::vector;
-
-   using Super::at;
-   using Super::push_back;
-
-   using Super::iterator;
-   // IsAType< Super::vector > t; // 
-};
-
-template< class T >
-class MyVectorProtected : protected std::vector< T >
+template< class Container >
+void Deallocate( Container& vec )
 {
-   using Super = std::vector< T >;
-
-public:
-   using Super::vector;
-   using stdvec = typename Super::vector;
-
-   using Super::at;
-   using Super::push_back;
-
-   using Super::iterator;
-   // IsAType< Super::vector > t; // C2923
-};
-
-template< class T >
-class MyVectorPrivate : private std::vector< T >
-{
-   using Super = std::vector< T >;
-
-public:
-   using Super::vector;
-   using stdvec = typename Super::vector;
-
-   using Super::at; // function
-   using Super::push_back; // function
-
-
-   using Super::iterator; // type 
-   // IsAType< Super::vector > t; // C2923
-};
-
+   for( typename Container::size_type i = 0; i < vec.size(); ++i )
+   {
+      delete vec[ i ];
+   };
+}
 
 int main()
 {
-   auto vecPub = MyVectorPublic< int >::vector();
-   //auto vecProt = MyVectorProtected< int >::vector(); // C2247
-   //auto vecPriv = MyVectorPrivate< int >::vector(); // C2247
-   auto vecProt = MyVectorProtected< int >::stdvec();
-   auto vecPriv = MyVectorPrivate< int >::stdvec();
+   std::cout << std::boolalpha;
+   using namespace std::string_literals;
 
-   auto itPub = MyVectorPublic< int >::iterator();
-   auto itProt = MyVectorProtected< int >::iterator();
-   auto itPriv = MyVectorPrivate< int >::iterator();
+   constexpr auto capacity = 1024;
+   std::vector< int* > intPointers;
+   intPointers.resize( 1024 );
+
+   auto lamAll = [&]() { Allocate( intPointers );  };
+   std::cout << ExecutionDurationCheck( lamAll  ) << std::endl;
+
+   auto lamDea = [&]() { Deallocate( intPointers );  };
+   std::cout << ExecutionDurationCheck( lamDea ) << std::endl;
+
+
 }
