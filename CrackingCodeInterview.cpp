@@ -1531,73 +1531,16 @@ llu GetFibonacciTermByIndex_Iteration( llu index )
    return fibAtIndex;
 }
 
-class Asteroid;
-class SpaceShip
+template< class Container, class Deviation >
+auto CheckDeviation( Container&& cont, Deviation&& dev )
 {
-public:
-   virtual void Collide( Asteroid& );
-};
-
-class Apollo : public SpaceShip
-{
-public:
-   void Collide( Asteroid& ) override;
-};
-
-class Asteroid
-{
-public:
-   virtual void Collide( SpaceShip& ) 
-   {
-      COUT_FUNCSIG_ENDL;
-   }
-   virtual void Collide( Apollo& )
-   {
-      COUT_FUNCSIG_ENDL;
-   }
-};
-
-class ExplosiveAst : public Asteroid
-{
-public:
-   void Collide( SpaceShip& ) override
-   {
-      COUT_FUNCSIG_ENDL;
-   }
-   void Collide( Apollo& ) override
-   {
-      COUT_FUNCSIG_ENDL;
-   }
-};
-
-void SpaceShip::Collide( Asteroid& a)
-{
-   a.Collide( *this );
-}
-
-void Apollo::Collide( Asteroid& a)
-{
-   a.Collide( *this );
+   return std::adjacent_find( cont.begin(), cont.end(), [dev]( auto n, auto nplus1 ) 
+      {
+         return std::abs( nplus1 - n ) >= std::abs( dev );
+      } );
 }
 
 int main()
 {
-   std::cout << std::boolalpha;
-   using namespace std::string_literals;
 
-   SpaceShip sp;
-   Apollo ap;
-   SpaceShip& spRef1 = sp;
-   SpaceShip& spRef2 = ap;
-
-   Asteroid as;
-   ExplosiveAst exp;
-   Asteroid& asRef1 = as;
-   Asteroid& asRef2 = exp;
-
-   spRef1.Collide( asRef1 );
-   spRef1.Collide( asRef2 );
-
-   spRef2.Collide( asRef1 );
-   spRef2.Collide( asRef2 );
 }
