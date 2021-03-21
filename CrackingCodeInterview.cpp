@@ -1559,7 +1559,6 @@ auto Gather( Iter first, Iter last, Iter gatherPoint, Selector s )
 {
    auto not_s = [&s]( auto const& val ) { return !s( val ); };
    return std::make_pair( std::stable_partition( first, gatherPoint, not_s ), std::stable_partition( gatherPoint, last, s) );
-
 }
 
 //TBD: implement slide and gather algos
@@ -1596,6 +1595,11 @@ int main()
 
    std::cout << "-----------------\n";
    Slide( first, last, rotationBegin );
+   std::for_each( numbers.begin(), numbers.end(), [&i]( auto n ) { std::cout << i++ << ":  " << n << std::endl; } );
+   i = 0;
+
+   std::cout << "-----------------\n";
+   Gather( numbers.begin(), numbers.end(), numbers.begin() + numbers.size() / 2, []( auto n ) {return n % 2 == 0; } );
    std::for_each( numbers.begin(), numbers.end(), [&i]( auto n ) { std::cout << i++ << ":  " << n << std::endl; } );
    i = 0;
 
