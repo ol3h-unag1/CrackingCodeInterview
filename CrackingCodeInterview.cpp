@@ -1540,6 +1540,28 @@ auto CheckDeviation( Container&& cont, Deviation&& dev )
       } );
 }
 
+template< class Iter >
+auto Slide( Iter first, Iter last, Iter position )
+{
+   if( first < position )
+   {
+      return std::make_pair( std::rotate( first, last, position ), position );
+   }
+   if ( position < first )
+   {
+      return std::make_pair( position, std::rotate( position, first, last ) );
+   }
+   return std::make_pair( first, last );
+}
+
+template< class Iter, class Selector >
+auto Gather( Iter first, Iter last, Iter gatherPoint, Selector s )
+{
+   auto not_s = [&s]( auto const& val ) { return !s( val ); };
+   return std::make_pair( std::stable_partition( first, gatherPoint, not_s ), std::stable_partition( gatherPoint, last, s) );
+
+}
+
 //TBD: implement slide and gather algos
 int main()
 {
@@ -1566,4 +1588,15 @@ int main()
    std::rotate( rotationBegin, newBegin, rotationEnd );
    std::for_each( numbers.begin(), numbers.end(), [&i]( auto n ) { std::cout << i++ << ":  " << n << std::endl; } );
    i = 0;
+
+   std::cout << "-----------------\n";
+   auto[first, last] = Slide( rotationBegin, rotationMiddle, rotationEnd );
+   std::for_each( numbers.begin(), numbers.end(), [&i]( auto n ) { std::cout << i++ << ":  " << n << std::endl; } );
+   i = 0;
+
+   std::cout << "-----------------\n";
+   Slide( first, last, rotationBegin );
+   std::for_each( numbers.begin(), numbers.end(), [&i]( auto n ) { std::cout << i++ << ":  " << n << std::endl; } );
+   i = 0;
+
 }
