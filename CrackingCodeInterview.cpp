@@ -20,6 +20,8 @@
 
 #include <functional>
 #include <utility>
+#include <numeric>
+#include <algorithm>
 
 #include <chrono>
 
@@ -29,8 +31,6 @@
 
 #include <any>
 #include <typeindex>
-
-#include <mutex>
 
 #include "Random.hpp"
 #include "Util.hpp"
@@ -1540,7 +1540,30 @@ auto CheckDeviation( Container&& cont, Deviation&& dev )
       } );
 }
 
+//TBD: implement slide and gather algos
 int main()
 {
+   std::cout << std::boolalpha;
+   using namespace std::string_literals;
 
+   std::vector< int > numbers( 10 );
+   std::iota( numbers.begin(), numbers.end(), 1 );
+   int i = 0;
+   std::for_each( numbers.begin(), numbers.end(), [&i]( auto n ) { std::cout << i++ << ":  " << n << std::endl; } );
+   i = 0;
+
+   // slide 4th and 5th to 8th
+   std::cout << "-----------------\n";
+   auto rotationBegin = numbers.begin() + 3;
+   auto rotationMiddle = rotationBegin + 2;
+   auto rotationEnd = rotationBegin + 5;
+   auto newBegin = std::rotate( rotationBegin, rotationMiddle, rotationEnd );
+   std::for_each( numbers.begin(), numbers.end(), [&i]( auto n ) { std::cout << i++ << ":  " << n << std::endl; } );
+   i = 0;
+
+   // slide them back
+   std::cout << "-----------------\n";
+   std::rotate( rotationBegin, newBegin, rotationEnd );
+   std::for_each( numbers.begin(), numbers.end(), [&i]( auto n ) { std::cout << i++ << ":  " << n << std::endl; } );
+   i = 0;
 }
