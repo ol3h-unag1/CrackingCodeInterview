@@ -1561,7 +1561,6 @@ auto Gather( Iter first, Iter last, Iter gatherPoint, Selector s )
    return std::make_pair( std::stable_partition( first, gatherPoint, not_s ), std::stable_partition( gatherPoint, last, s) );
 }
 
-
 #include <iostream>
 #include <algorithm>
 #include <list>
@@ -1787,14 +1786,9 @@ void GetAllDecisionPermutations_Impl( std::list< std::list< E_Decision > >& resu
 template< class Container >
 void PrintDecisionsStepByStep( Container const& decisions, int pot = 60, int bet = 10, int raise = 20 )
 {
-   // hash-set used to check if bet and raise was alreay counted 
-   // we could use two bools instead, but that looks and reads better imo
-   // also this part of algorithm would be ready for extension like re-raise addition
-   std::unordered_set< decltype( std::addressof( *decisions.begin() ) ) > counted;
-   auto notUsed = [&counted]( auto* p )
-   {
-      return counted.count( p ) == 0;
-   };
+   bool betOccured = false;
+   bool raiseOccured = false;
+   int potInitial = pot;
 
    auto first = decisions.begin();
    auto trailing = first;
@@ -1803,6 +1797,7 @@ void PrintDecisionsStepByStep( Container const& decisions, int pot = 60, int bet
    {
       for( auto it = first; it != trailing; ++it )
       {
+         auto& a_curDec = *it;
          auto dashPrinter = it;
          std::cout << Decision2Str( *it );
          ++dashPrinter;
@@ -1811,13 +1806,37 @@ void PrintDecisionsStepByStep( Container const& decisions, int pot = 60, int bet
             std::cout << " - ";
          }
 
-         if( notUsed( std::addressof(*it) ) && ( E_Decision::BET == *it || E_Decision::RAISE == *it ) )
+         if( E_Decision::BET == *it && !betOccured )
          {
-            pot += E_Decision::BET == *it ? 10 : 20;
-            counted.insert( std::addressof( *it ) );
+            betOccured = true;
+            pot += bet;
+         }
+
+         if( E_Decision::RAISE == *it && !raiseOccured )
+         {
+            raiseOccured = true;
+            pot += raise;
+         }
+
+         if( E_Decision::CALL == *it )
+         {
+            if( raiseOccured )
+            {
+               pot += raise;
+            }
+            else if( betOccured )
+            {
+               pot += bet;
+            }
+            else
+            {}
          }
       }
       std::cout << ": " << pot << std::endl;
+      pot = potInitial;
+      
+      betOccured = false;
+      raiseOccured = false;
 
       if( trailing == decisions.end() )
       {
@@ -1834,16 +1853,16 @@ int main()
    using namespace std::string_literals;
 
 
-   // permutations w/o pot
-   auto permutations = GetAllDecisionPermutations( 2 );
-   for( auto p : permutations )
-   {
-      for( auto decision : p )
-      {
-         std::cout << Decision2Str( decision ) << " ";
-      }
-      std::cout << std::endl;
-   }
+  // permutations w/o pot
+  auto permutations = GetAllDecisionPermutations( 3 );
+  for( auto p : permutations )
+  {
+     for( auto decision : p )
+     {
+        std::cout << Decision2Str( decision ) << " ";
+     }
+     std::cout << std::endl;
+  }
 
    std::cout << "############################" << std::endl;
    
