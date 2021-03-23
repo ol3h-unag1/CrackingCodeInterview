@@ -1659,12 +1659,12 @@ std::vector< E_Decision > GetNextDecisions( E_Decision decision )
 
 // BET   CALL  CALL
 // BET   CALL  FOLD
-// BET   FOLD  CALL
-// BET   FOLD  FOLD  
 // BET   CALL  RAISE CALL  CALL
 // BET   CALL  RAISE CALL  FOLD
-// BET   CALL  RAISE FOLD  FOLD
 // BET   CALL  RAISE FOLD  CALL
+// BET   CALL  RAISE FOLD  FOLD
+// BET   FOLD  CALL
+// BET   FOLD  FOLD  
 // BET   FOLD  RAISE CALL
 // BET   FOLD  RAISE FOLD
 // BET   RAISE CALL  CALL
@@ -1676,19 +1676,46 @@ std::vector< E_Decision > GetNextDecisions( E_Decision decision )
 // CHECK BET ...
 
 
-// TBD: articulate steps!!!
+
+void GetAllDecisionPermutations_Impl( std::list< std::list< E_Decision > >& result, int numberOfPlayers );
+std::list< std::list< E_Decision > >
+GetAllDecisionPermutations( int numberOfPlayers )
+{
+   if( numberOfPlayers < 2 )
+   {
+      return {};
+   }
+
+   std::list< std::list< E_Decision > > result{ { E_Decision::BET }, { E_Decision::CHECK } }; // adding two initial decisions
+   GetAllDecisionPermutations_Impl( result, numberOfPlayers );
+   return result;
+}
+
+void GetAllDecisionPermutations_Impl( std::list< std::list< E_Decision > >& result, int numberOfPlayers )
+{
+   auto first = result.begin();   
+   while( first != result.end() )
+   {
+      auto& list = *first;
+      auto prevDecision = list.back();
+      auto nextPossibleDecionse = GetNextDecisions( prevDecision );
+   }
+
+}
 
 int main()
 {
    std::cout << std::boolalpha;
    using namespace std::string_literals;
 
-   //for( auto vec : GetAllDecisionsPermutation( 3 ) )
-   //{
-   //   for( auto decision : vec )
-   //   {
-   //      std::cout << Decision2Str( decision ) << " ";
-   //   }
-   //   std::cout << std::endl;
-   //}
+   for( auto list : GetAllDecisionPermutations( 3 ) )
+   {
+      for( auto decision : list )
+      {
+         std::cout << Decision2Str( decision ) << " ";
+      }
+      std::cout << std::endl;
+   }
+
+
 }
