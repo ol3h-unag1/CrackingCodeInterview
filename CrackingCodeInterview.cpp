@@ -1562,6 +1562,9 @@ auto Gather( Iter first, Iter last, Iter gatherPoint, Selector s )
 }
 
 
+#include <iostream>
+#include <list>
+#include <unordered_set>
 
 //Tadas Subonis1 : 35 PM
 //"You are playing a Texas Holdem poker game with two other players in flop street. There are 3 players in total. Each player can CHECK, BET,  FOLD, CALL (no raises).
@@ -1603,6 +1606,25 @@ auto Gather( Iter first, Iter last, Iter gatherPoint, Selector s )
 // RAISE CALL
 // RAISE FOLD
 
+// FOR THREE PLAYERS
+// BET   CALL  CALL
+// BET   CALL  FOLD
+// BET   CALL  RAISE CALL  CALL
+// BET   CALL  RAISE CALL  FOLD
+// BET   CALL  RAISE FOLD  CALL
+// BET   CALL  RAISE FOLD  FOLD
+// BET   FOLD  CALL
+// BET   FOLD  FOLD  
+// BET   FOLD  RAISE CALL
+// BET   FOLD  RAISE FOLD
+// BET   RAISE CALL  CALL
+// BET   RAISE CALL  FOLD
+// BET   RAISE FOLD  CALL 
+// BET   RAISE FOLD  FOLD 
+// CHECK CHECK CHECK
+// CHECK CHECK BET   ...
+// CHECK BET ...
+
 enum class E_Decision
 {
    BET,
@@ -1635,6 +1657,7 @@ std::string Decision2Str( E_Decision d )
    return "UKNOWN-DECISION!";
 }
 
+
 std::list < E_Decision > GetNextDecisions( E_Decision decision )
 {
    switch( decision )
@@ -1657,23 +1680,6 @@ std::list < E_Decision > GetNextDecisions( E_Decision decision )
    return {};
 }
 
-// BET   CALL  CALL
-// BET   CALL  FOLD
-// BET   CALL  RAISE CALL  CALL
-// BET   CALL  RAISE CALL  FOLD
-// BET   CALL  RAISE FOLD  CALL
-// BET   CALL  RAISE FOLD  FOLD
-// BET   FOLD  CALL
-// BET   FOLD  FOLD  
-// BET   FOLD  RAISE CALL
-// BET   FOLD  RAISE FOLD
-// BET   RAISE CALL  CALL
-// BET   RAISE CALL  FOLD
-// BET   RAISE FOLD  CALL 
-// BET   RAISE FOLD  FOLD 
-// CHECK CHECK CHECK
-// CHECK CHECK BET   ...
-// CHECK BET ...
 
 template< class Container >
 bool IsCompletePermutation( Container const& decisions, int activePlayers )
@@ -1780,36 +1786,99 @@ void GetAllDecisionPermutations_Impl( std::list< std::list< E_Decision > >& resu
    }
 }
 
+template< class Container >
+void PrintDecisionsStepByStep( Container const& decisions, int pot = 60, int bet = 10, int raise = 20 )
+{
+   bool betUsed = false;
+   bool raiseUsed = false;
+   auto notUsed = [&]( auto const& dec )
+   {
+      if( E_Decision::BET == dec )
+      {
+         if( betUsed )
+         {
+            return false;
+         }
+         else
+         {
+            betUsed = true;
+            return true;
+         }
+      }
+
+      if( E_Decision::RAISE == dec )
+      {
+         if( raiseUsed )
+         {
+            return false;
+         }
+         else
+         {
+            raiseUsed = true;
+            return true;
+         }
+      }
+
+      return true;      
+   };
+
+   auto first = decisions.begin();
+   auto trailing = first;
+   ++trailing;
+   while( true )
+   {
+      for( auto it = first; it != trailing; ++it )
+      {
+         auto dashPrinter = it;
+         std::cout << Decision2Str( *it );
+         ++dashPrinter;
+         if( dashPrinter != trailing )
+         {
+            std::cout << " - ";
+         }
+
+         if( notUsed( *it ) && ( E_Decision::BET == *it || E_Decision::RAISE == *it ) )
+         {
+            pot += E_Decision::BET == *it ? 10 : 20;
+         }
+      }
+      std::cout << ": " << pot << std::endl;
+
+      if( trailing == decisions.end() )
+      {
+         return;
+      }
+
+      ++trailing;
+   }
+}
+
 int main()
 {
    std::cout << std::boolalpha;
    using namespace std::string_literals;
 
-   for( auto list : GetAllDecisionPermutations( 3 ) )
+
+   // permutations w/o pot
+   auto permutations = GetAllDecisionPermutations( 3 );
+   for( auto p : permutations )
    {
-      for( auto decision : list )
+      for( auto decision : p )
       {
          std::cout << Decision2Str( decision ) << " ";
       }
       std::cout << std::endl;
    }
 
-   std::list< E_Decision > decisions = { E_Decision::CHECK,  E_Decision::CHECK, E_Decision::BET,E_Decision::RAISE, E_Decision::CALL, E_Decision::CALL };
+   std::cout << "############################" << std::endl;
+   
+   // all permutations step-by-step with pot
+   for( auto const& p : permutations )
+   {
+      PrintDecisionsStepByStep( p );
+      std::cout << "-----------------------------" << std::endl;
+   }
 
-   std::cout << IsCompletePermutation( decisions, 3) << std::endl;
-
-   //std::list< int > list{ 0, 1 };
-   //auto it = list.begin();
-   //++it;
-   //for( int i = 2; i < 10; ++i )
-   //{
-   //   it = list.insert( it, i );
-   //   ++it;
-   //}
-
-   //for( auto i : list )
-   //{
-   //   std::cout << i << " ";
-   //}
+   
 
 }
