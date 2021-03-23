@@ -1635,7 +1635,7 @@ std::string Decision2Str( E_Decision d )
    return "UKNOWN-DECISION!";
 }
 
-std::vector< E_Decision > GetNextDecisions( E_Decision decision )
+std::list < E_Decision > GetNextDecisions( E_Decision decision )
 {
    switch( decision )
    {
@@ -1675,34 +1675,52 @@ std::vector< E_Decision > GetNextDecisions( E_Decision decision )
 // CHECK CHECK BET   ...
 // CHECK BET ...
 
-bool IsCompletePermutation( std::list< E_Decision > const& decisions, int numberOfPlayers )
+template< class Container >
+bool IsCompletePermutation( Container const& decisions, int activePlayers )
 {
-   auto stepsLeft = numberOfPlayers;
+   auto stepsLeft = activePlayers;
    for( auto d : decisions )
    {
       switch( d )
       {
       case E_Decision::BET:
       case E_Decision::RAISE:
-         stepsLeft = numberOfPlayers - 1;
+         stepsLeft = activePlayers - 1;
          break;
 
       case E_Decision::CALL:   
       case E_Decision::CHECK:  
          --stepsLeft;
          break;
+
       case E_Decision::FOLD:   
-
          --stepsLeft;
-         --numberOfPlayers;
+         --activePlayers;
          break;
-
       }
 
    }
 
    return stepsLeft == 0;
 }
+
+template< class Container >
+bool HasDecision( Container const& cont, E_Decision dec )
+{
+   return std::find( cont.begin(), cont.end(), dec ) != cont.end();
+}
+
+template< class Container >
+auto RemoveDecision( Container& cont, E_Decision dec )
+{
+   if( auto it = std::find( cont.begin(), cont.end(), dec ); it != cont.end() )
+   {
+      return cont.erase( it );
+   }
+
+   return cont.end();
+}
+
 
 void GetAllDecisionPermutations_Impl( std::list< std::list< E_Decision > >& result, int numberOfPlayers );
 
@@ -1725,10 +1743,41 @@ void GetAllDecisionPermutations_Impl( std::list< std::list< E_Decision > >& resu
    while( first != result.end() )
    {
       auto& list = *first;
-      auto prevDecision = list.back();
-      auto nextPossibleDecionse = GetNextDecisions( prevDecision );
-   }
+      if( IsCompletePermutation( list, numberOfPlayers ) )
+      {
+         ++first;
+      }
+      else
+      {
+         auto prevDecision = list.back();
+         auto nextPossibleDecisions = GetNextDecisions( prevDecision );
+         
+         if( HasDecision( list, E_Decision::RAISE ) && HasDecision( nextPossibleDecisions, E_Decision::RAISE ) )
+         {
+            RemoveDecision( nextPossibleDecisions, E_Decision::RAISE );
+         }
+         // removing front before making list duplicates and 
+         // saving it for later addition to the list
+         auto late = nextPossibleDecisions.front();
+         nextPossibleDecisions.pop_front();
 
+         // duplicates creation
+         auto const dublicates2add = nextPossibleDecisions.size();
+         auto insertionPoint = first;
+         ++insertionPoint; // incrementing before loop, so inserting to the middle
+         for( auto i = 0; i < dublicates2add; ++i )
+         {
+            insertionPoint = result.insert( insertionPoint, list );
+            auto& dub = *insertionPoint;
+            ++insertionPoint;          
+            dub.push_back( nextPossibleDecisions.front() );
+            nextPossibleDecisions.pop_front();
+         }
+
+         // inserting saved item
+         list.push_back( late );
+      }
+   }
 }
 
 int main()
@@ -1736,16 +1785,31 @@ int main()
    std::cout << std::boolalpha;
    using namespace std::string_literals;
 
-   //for( auto list : GetAllDecisionPermutations( 3 ) )
-   //{
-   //   for( auto decision : list )
-   //   {
-   //      std::cout << Decision2Str( decision ) << " ";
-   //   }
-   //   std::cout << std::endl;
-   //}
+   for( auto list : GetAllDecisionPermutations( 3 ) )
+   {
+      for( auto decision : list )
+      {
+         std::cout << Decision2Str( decision ) << " ";
+      }
+      std::cout << std::endl;
+   }
 
    std::list< E_Decision > decisions = { E_Decision::CHECK,  E_Decision::CHECK, E_Decision::BET,E_Decision::RAISE, E_Decision::CALL, E_Decision::CALL };
 
    std::cout << IsCompletePermutation( decisions, 3) << std::endl;
+
+   //std::list< int > list{ 0, 1 };
+   //auto it = list.begin();
+   //++it;
+   //for( int i = 2; i < 10; ++i )
+   //{
+   //   it = list.insert( it, i );
+   //   ++it;
+   //}
+
+   //for( auto i : list )
+   //{
+   //   std::cout << i << " ";
+   //}
+
 }
