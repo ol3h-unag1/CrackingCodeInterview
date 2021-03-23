@@ -1675,9 +1675,37 @@ std::vector< E_Decision > GetNextDecisions( E_Decision decision )
 // CHECK CHECK BET   ...
 // CHECK BET ...
 
+bool IsCompletePermutation( std::list< E_Decision > const& decisions, int numberOfPlayers )
+{
+   auto stepsLeft = numberOfPlayers;
+   for( auto d : decisions )
+   {
+      switch( d )
+      {
+      case E_Decision::BET:
+      case E_Decision::RAISE:
+         stepsLeft = numberOfPlayers - 1;
+         break;
 
+      case E_Decision::CALL:   
+      case E_Decision::CHECK:  
+         --stepsLeft;
+         break;
+      case E_Decision::FOLD:   
+
+         --stepsLeft;
+         --numberOfPlayers;
+         break;
+
+      }
+
+   }
+
+   return stepsLeft == 0;
+}
 
 void GetAllDecisionPermutations_Impl( std::list< std::list< E_Decision > >& result, int numberOfPlayers );
+
 std::list< std::list< E_Decision > >
 GetAllDecisionPermutations( int numberOfPlayers )
 {
@@ -1708,14 +1736,16 @@ int main()
    std::cout << std::boolalpha;
    using namespace std::string_literals;
 
-   for( auto list : GetAllDecisionPermutations( 3 ) )
-   {
-      for( auto decision : list )
-      {
-         std::cout << Decision2Str( decision ) << " ";
-      }
-      std::cout << std::endl;
-   }
+   //for( auto list : GetAllDecisionPermutations( 3 ) )
+   //{
+   //   for( auto decision : list )
+   //   {
+   //      std::cout << Decision2Str( decision ) << " ";
+   //   }
+   //   std::cout << std::endl;
+   //}
 
+   std::list< E_Decision > decisions = { E_Decision::CHECK,  E_Decision::CHECK, E_Decision::BET,E_Decision::RAISE, E_Decision::CALL, E_Decision::CALL };
 
+   std::cout << IsCompletePermutation( decisions, 3) << std::endl;
 }
