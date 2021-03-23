@@ -1789,37 +1789,10 @@ void GetAllDecisionPermutations_Impl( std::list< std::list< E_Decision > >& resu
 template< class Container >
 void PrintDecisionsStepByStep( Container const& decisions, int pot = 60, int bet = 10, int raise = 20 )
 {
-   bool betUsed = false;
-   bool raiseUsed = false;
-   auto notUsed = [&]( auto const& dec )
+   std::unordered_set< decltype( std::addressof( *decisions.begin() ) ) > used;
+   auto notUsed = [&used]( auto* p )
    {
-      if( E_Decision::BET == dec )
-      {
-         if( betUsed )
-         {
-            return false;
-         }
-         else
-         {
-            betUsed = true;
-            return true;
-         }
-      }
-
-      if( E_Decision::RAISE == dec )
-      {
-         if( raiseUsed )
-         {
-            return false;
-         }
-         else
-         {
-            raiseUsed = true;
-            return true;
-         }
-      }
-
-      return true;      
+      return used.count( p ) == 0;
    };
 
    auto first = decisions.begin();
@@ -1837,9 +1810,10 @@ void PrintDecisionsStepByStep( Container const& decisions, int pot = 60, int bet
             std::cout << " - ";
          }
 
-         if( notUsed( *it ) && ( E_Decision::BET == *it || E_Decision::RAISE == *it ) )
+         if( notUsed( std::addressof(*it) ) && ( E_Decision::BET == *it || E_Decision::RAISE == *it ) )
          {
             pot += E_Decision::BET == *it ? 10 : 20;
+            used.insert( std::addressof( *it ) );
          }
       }
       std::cout << ": " << pot << std::endl;
@@ -1877,8 +1851,5 @@ int main()
    {
       PrintDecisionsStepByStep( p );
       std::cout << "-----------------------------" << std::endl;
-   }
-
-   
-
+   }  
 }
