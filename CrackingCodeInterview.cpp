@@ -1563,10 +1563,10 @@ auto Gather( Iter first, Iter last, Iter gatherPoint, Selector s )
 
 
 #include <iostream>
+#include <algorithm>
 #include <list>
 #include <unordered_set>
 
-//Tadas Subonis1 : 35 PM
 //"You are playing a Texas Holdem poker game with two other players in flop street. There are 3 players in total. Each player can CHECK, BET,  FOLD, CALL (no raises).
 //
 //Print out all possible sequence lines for the current street( round ).
@@ -1590,8 +1590,7 @@ auto Gather( Iter first, Iter last, Iter gatherPoint, Selector s )
 // 3rd part : Print out lines where the game ends AND print out intermediate lines with pot size
 // 4th part : add a RAISE ( 20 chips ) for the (no reRAISE)
 
-// tadas@variantlabs.co
-
+// FOR TWO PLAYERS
 // BET   CALL
 // BET   FOLD
 // BET   RAISE
@@ -1657,7 +1656,6 @@ std::string Decision2Str( E_Decision d )
    return "UKNOWN-DECISION!";
 }
 
-
 std::list < E_Decision > GetNextDecisions( E_Decision decision )
 {
    switch( decision )
@@ -1679,7 +1677,6 @@ std::list < E_Decision > GetNextDecisions( E_Decision decision )
 
    return {};
 }
-
 
 template< class Container >
 bool IsCompletePermutation( Container const& decisions, int activePlayers )
@@ -1727,7 +1724,6 @@ auto RemoveDecision( Container& cont, E_Decision dec )
    return cont.end();
 }
 
-
 void GetAllDecisionPermutations_Impl( std::list< std::list< E_Decision > >& result, int numberOfPlayers );
 
 std::list< std::list< E_Decision > >
@@ -1755,13 +1751,13 @@ void GetAllDecisionPermutations_Impl( std::list< std::list< E_Decision > >& resu
       }
       else
       {
-         auto prevDecision = list.back();
-         auto nextPossibleDecisions = GetNextDecisions( prevDecision );
+         auto nextPossibleDecisions = GetNextDecisions( list.back() );
          
          if( HasDecision( list, E_Decision::RAISE ) && HasDecision( nextPossibleDecisions, E_Decision::RAISE ) )
          {
             RemoveDecision( nextPossibleDecisions, E_Decision::RAISE );
          }
+
          // removing front before making list duplicates and 
          // saving it for later addition to the list
          auto late = nextPossibleDecisions.front();
@@ -1770,14 +1766,16 @@ void GetAllDecisionPermutations_Impl( std::list< std::list< E_Decision > >& resu
          // duplicates creation
          auto const dublicates2add = nextPossibleDecisions.size();
          auto insertionPoint = first;
-         ++insertionPoint; // incrementing before loop, so inserting to the middle
-         for( auto i = 0; i < dublicates2add; ++i )
+         ++insertionPoint; // incrementing before loop, so inserting after first
+         for( auto i = 0; i < dublicates2add; ++i ) // we change insertionPoint twice inside the body of loop
          {
-            insertionPoint = result.insert( insertionPoint, list );
+            insertionPoint = result.insert( insertionPoint, list ); // 1st
+
             auto& dub = *insertionPoint;
-            ++insertionPoint;          
             dub.push_back( nextPossibleDecisions.front() );
             nextPossibleDecisions.pop_front();
+
+            ++insertionPoint; // 2nd
          }
 
          // inserting saved item
@@ -1789,10 +1787,13 @@ void GetAllDecisionPermutations_Impl( std::list< std::list< E_Decision > >& resu
 template< class Container >
 void PrintDecisionsStepByStep( Container const& decisions, int pot = 60, int bet = 10, int raise = 20 )
 {
-   std::unordered_set< decltype( std::addressof( *decisions.begin() ) ) > used;
-   auto notUsed = [&used]( auto* p )
+   // hash-set used to check if bet and raise was alreay counted 
+   // we could use two bools instead, but that looks and reads better imo
+   // also this part of algorithm would be ready for extension like re-raise addition
+   std::unordered_set< decltype( std::addressof( *decisions.begin() ) ) > counted;
+   auto notUsed = [&counted]( auto* p )
    {
-      return used.count( p ) == 0;
+      return counted.count( p ) == 0;
    };
 
    auto first = decisions.begin();
@@ -1813,7 +1814,7 @@ void PrintDecisionsStepByStep( Container const& decisions, int pot = 60, int bet
          if( notUsed( std::addressof(*it) ) && ( E_Decision::BET == *it || E_Decision::RAISE == *it ) )
          {
             pot += E_Decision::BET == *it ? 10 : 20;
-            used.insert( std::addressof( *it ) );
+            counted.insert( std::addressof( *it ) );
          }
       }
       std::cout << ": " << pot << std::endl;
@@ -1834,7 +1835,7 @@ int main()
 
 
    // permutations w/o pot
-   auto permutations = GetAllDecisionPermutations( 3 );
+   auto permutations = GetAllDecisionPermutations( 2 );
    for( auto p : permutations )
    {
       for( auto decision : p )
