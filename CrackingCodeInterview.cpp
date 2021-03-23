@@ -1657,26 +1657,6 @@ std::vector< E_Decision > GetNextDecisions( E_Decision decision )
    return {};
 }
 
-void GetAllDecisionsPermutation_Impl( std::vector < std::vector< E_Decision > >& result, 
-                                      std::vector< E_Decision > decisions, int depth, int numberOfPlayers );
-
-std::vector < std::vector< E_Decision > > 
-GetAllDecisionsPermutation( int numberOfPlayers )
-{
-   std::vector < std::vector< E_Decision > > result = { {} };
-   std::vector< E_Decision > initialDecisions = { E_Decision::BET, E_Decision::CHECK };
-   GetAllDecisionsPermutation_Impl( result, initialDecisions, numberOfPlayers, numberOfPlayers );
-   return result;
-}
-
-template< class Container >
-auto PopFront( Container& container )
-{
-   auto front = container.front();
-   container.erase( container.begin() );
-   return front;
-}
-
 // BET   CALL  CALL
 // BET   CALL  FOLD
 // BET   FOLD  CALL
@@ -1695,11 +1675,6 @@ auto PopFront( Container& container )
 // CHECK CHECK BET   ...
 // CHECK BET ...
 
-void GetAllDecisionsPermutation_Impl( std::vector < std::vector< E_Decision > >& result, 
-                                      std::vector< E_Decision > decisions, int depth, int numberOfPlayers )
-{
-   
-}
 
 // TBD: articulate steps!!!
 
