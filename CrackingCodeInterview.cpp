@@ -1561,46 +1561,159 @@ auto Gather( Iter first, Iter last, Iter gatherPoint, Selector s )
    return std::make_pair( std::stable_partition( first, gatherPoint, not_s ), std::stable_partition( gatherPoint, last, s) );
 }
 
-//TBD: implement slide and gather algos
+
+
+//Tadas Subonis1 : 35 PM
+//"You are playing a Texas Holdem poker game with two other players in flop street. There are 3 players in total. Each player can CHECK, BET,  FOLD, CALL (no raises).
+//
+//Print out all possible sequence lines for the current street( round ).
+//
+//For example :
+//CHECK - CHECK - CHECK
+//CHECK - BET - FOLD - FOLD"
+// 
+// 
+// 
+// 
+// You are playing a Texas Holdem poker game with two other players in flop street. 
+//  There are 3 players in total. Each player can CHECK, BET,  FOLD, CALL (no raises).
+// 
+// Print out all possible sequence lines for the current street( round ).
+// 
+// For example :
+// CHECK - CHECK - CHECK
+// CHECK - BET - FOLD - FOLD
+// 2nd part : print out pot size( assume 60 chips starting pot ) for each line; bet is 10 chips
+// 3rd part : Print out lines where the game ends AND print out intermediate lines with pot size
+// 4th part : add a RAISE ( 20 chips ) for the (no reRAISE)
+
+// tadas@variantlabs.co
+
+// BET   CALL
+// BET   FOLD
+// BET   RAISE
+// CALL  CALL
+// CALL  FOLD
+// CALL  RAISE
+// CHECK CHECK
+// CHECK BET
+// FOLD  CALL
+// FOLD  FOLD
+// FOLD  RAISE
+// RAISE CALL
+// RAISE FOLD
+
+enum class E_Decision
+{
+   BET,
+   CALL,
+   CHECK,
+   FOLD,
+   RAISE,
+
+   INVALID
+};
+
+std::string Decision2Str( E_Decision d )
+{
+   switch( d )
+   {
+   case E_Decision::BET:      return "BET";
+      break;
+   case E_Decision::CALL:     return "CALL";
+      break;                
+   case E_Decision::CHECK:    return "CHECK";
+      break;              
+   case E_Decision::FOLD:     return "FOLD";
+      break;
+   case E_Decision::RAISE:    return "RAISE";
+      break;
+   case E_Decision::INVALID:  return "INVALID";
+      break;
+   }
+
+   return "UKNOWN-DECISION!";
+}
+
+std::vector< E_Decision > GetNextDecisions( E_Decision decision )
+{
+   switch( decision )
+   {
+   case E_Decision::BET:
+   case E_Decision::CALL:
+   case E_Decision::FOLD:
+      return { E_Decision::CALL, E_Decision::FOLD, E_Decision::RAISE };
+      break;
+
+   case E_Decision::CHECK:
+      return { E_Decision::BET, E_Decision::CHECK };
+      break;
+
+   case E_Decision::RAISE:
+      return { E_Decision::CALL, E_Decision::FOLD };
+      break;
+   }
+
+   return {};
+}
+
+void GetAllDecisionsPermutation_Impl( std::vector < std::vector< E_Decision > >& result, 
+                                      std::vector< E_Decision > decisions, int depth, int numberOfPlayers );
+
+std::vector < std::vector< E_Decision > > 
+GetAllDecisionsPermutation( int numberOfPlayers )
+{
+   std::vector < std::vector< E_Decision > > result = { {} };
+   std::vector< E_Decision > initialDecisions = { E_Decision::BET, E_Decision::CHECK };
+   GetAllDecisionsPermutation_Impl( result, initialDecisions, numberOfPlayers, numberOfPlayers );
+   return result;
+}
+
+template< class Container >
+auto PopFront( Container& container )
+{
+   auto front = container.front();
+   container.erase( container.begin() );
+   return front;
+}
+
+// BET   CALL  CALL
+// BET   CALL  FOLD
+// BET   FOLD  CALL
+// BET   FOLD  FOLD  
+// BET   CALL  RAISE CALL  CALL
+// BET   CALL  RAISE CALL  FOLD
+// BET   CALL  RAISE FOLD  FOLD
+// BET   CALL  RAISE FOLD  CALL
+// BET   FOLD  RAISE CALL
+// BET   FOLD  RAISE FOLD
+// BET   RAISE CALL  CALL
+// BET   RAISE CALL  FOLD
+// BET   RAISE FOLD  CALL 
+// BET   RAISE FOLD  FOLD 
+// CHECK CHECK CHECK
+// CHECK CHECK BET   ...
+// CHECK BET ...
+
+void GetAllDecisionsPermutation_Impl( std::vector < std::vector< E_Decision > >& result, 
+                                      std::vector< E_Decision > decisions, int depth, int numberOfPlayers )
+{
+   
+}
+
+// TBD: articulate steps!!!
+
 int main()
 {
    std::cout << std::boolalpha;
    using namespace std::string_literals;
 
-   std::vector< int > numbers( 10 );
-   std::iota( numbers.begin(), numbers.end(), 1 );
-   int i = 0;
-   std::for_each( numbers.begin(), numbers.end(), [&i]( auto n ) { std::cout << i++ << ":  " << n << std::endl; } );
-   i = 0;
-
-   // slide 4th and 5th to 8th
-   std::cout << "-----------------\n";
-   auto rotationBegin = numbers.begin() + 3;
-   auto rotationMiddle = rotationBegin + 2;
-   auto rotationEnd = rotationBegin + 5;
-   auto newBegin = std::rotate( rotationBegin, rotationMiddle, rotationEnd );
-   std::for_each( numbers.begin(), numbers.end(), [&i]( auto n ) { std::cout << i++ << ":  " << n << std::endl; } );
-   i = 0;
-
-   // slide them back
-   std::cout << "-----------------\n";
-   std::rotate( rotationBegin, newBegin, rotationEnd );
-   std::for_each( numbers.begin(), numbers.end(), [&i]( auto n ) { std::cout << i++ << ":  " << n << std::endl; } );
-   i = 0;
-
-   std::cout << "-----------------\n";
-   auto[first, last] = Slide( rotationBegin, rotationMiddle, rotationEnd );
-   std::for_each( numbers.begin(), numbers.end(), [&i]( auto n ) { std::cout << i++ << ":  " << n << std::endl; } );
-   i = 0;
-
-   std::cout << "-----------------\n";
-   Slide( first, last, rotationBegin );
-   std::for_each( numbers.begin(), numbers.end(), [&i]( auto n ) { std::cout << i++ << ":  " << n << std::endl; } );
-   i = 0;
-
-   std::cout << "-----------------\n";
-   Gather( numbers.begin(), numbers.end(), numbers.begin() + numbers.size() / 2, []( auto n ) {return n % 2 == 0; } );
-   std::for_each( numbers.begin(), numbers.end(), [&i]( auto n ) { std::cout << i++ << ":  " << n << std::endl; } );
-   i = 0;
-
+   //for( auto vec : GetAllDecisionsPermutation( 3 ) )
+   //{
+   //   for( auto decision : vec )
+   //   {
+   //      std::cout << Decision2Str( decision ) << " ";
+   //   }
+   //   std::cout << std::endl;
+   //}
 }
