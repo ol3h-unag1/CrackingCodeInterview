@@ -1562,9 +1562,8 @@ auto Gather( Iter first, Iter last, Iter gatherPoint, Selector s )
 }
 
 #include <iostream>
-#include <algorithm>
 #include <list>
-#include <unordered_set>
+#include <vector>
 
 //"You are playing a Texas Holdem poker game with two other players in flop street. There are 3 players in total. Each player can CHECK, BET,  FOLD, CALL (no raises).
 //
@@ -1872,7 +1871,6 @@ int main()
 {
    std::cout << std::boolalpha;
    using namespace std::string_literals;
-
 
   // permutations w/o pot
   
