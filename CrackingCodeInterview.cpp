@@ -1634,6 +1634,39 @@ enum class E_Decision
    INVALID
 };
 
+class DecisionSequence : private std::vector< E_Decision >
+{
+private:
+   using Super = std::vector< E_Decision >;
+
+public:
+   explicit DecisionSequence( int numberOfPlayers )
+      : _numberOfPlayers( numberOfPlayers  )
+   {
+      // consider to throw if number of players is bad
+      reserve( 3 * _numberOfPlayers - 1 );
+   }
+
+public: 
+   using Super::begin;
+   using Super::end; 
+
+public:
+   void PushBack( E_Decision d ) 
+   { 
+      push_back( d );
+      if( ( _hasRaise == false ) && ( d == E_Decision::RAISE ) )
+      {
+         _hasRaise = true;
+      }
+   }
+   bool HasRaise() const { return _hasRaise; }
+
+private:
+   bool _hasRaise = false;
+   int _numberOfPlayers = 0;
+};
+
 std::string Decision2Str( E_Decision d )
 {
    switch( d )
@@ -1756,16 +1789,16 @@ void GetAllDecisionPermutations_Impl( std::list< std::vector< E_Decision > >& re
    auto first = result.begin();   
    while( first != result.end() )
    {
-      auto& list = *first;
-      if( IsCompletePermutation( list, numberOfPlayers ) )
+      auto& sequence = *first;
+      if( IsCompletePermutation( sequence, numberOfPlayers ) )
       {
          ++first;
       }
       else
       {
-         auto nextPossibleDecisions = GetNextDecisions( list.back() );
+         auto nextPossibleDecisions = GetNextDecisions( sequence.back() );
          
-         if( HasDecision( list, E_Decision::RAISE ) && HasDecision( nextPossibleDecisions, E_Decision::RAISE ) )
+         if( HasDecision( sequence, E_Decision::RAISE ) && HasDecision( nextPossibleDecisions, E_Decision::RAISE ) )
          {
             RemoveDecision( nextPossibleDecisions, E_Decision::RAISE );
          }
@@ -1781,7 +1814,7 @@ void GetAllDecisionPermutations_Impl( std::list< std::vector< E_Decision > >& re
          ++insertionPoint; // incrementing before loop, so inserting after first
          for( auto i = 0; i < dublicates2add; ++i ) // we change insertionPoint twice inside the body of loop
          {
-            insertionPoint = result.insert( insertionPoint, list ); // 1st
+            insertionPoint = result.insert( insertionPoint, sequence ); // 1st
 
             auto& dub = *insertionPoint;
             dub.push_back( nextPossibleDecisions.front() );
@@ -1791,7 +1824,7 @@ void GetAllDecisionPermutations_Impl( std::list< std::vector< E_Decision > >& re
          }
 
          // inserting saved item
-         list.push_back( late );
+         sequence.push_back( late );
       }
    }
 }
@@ -1880,21 +1913,24 @@ int main()
    std::cout << "Median time for " << size << " executions is " << static_cast< long long >( ArrayMedian( durationCollection ) ) << std::endl;
    std::cout << "Average time for " << size << " executions is " << std::accumulate( durationCollection.begin(), durationCollection.end(), 0 ) / durationCollection.size() << std::endl;
 
-  //for( auto& p : permutations )
-  //{
-  //   for( auto decision : p )
-  //   {
-  //      std::cout << Decision2Str( decision ) << " ";
-  //   }
-  //   std::cout << std::endl;
-  //}
+   std::cout << "############################" << std::endl;
 
-   //std::cout << "############################" << std::endl;
-   //
-   //// all permutations step-by-step with pot
-   //for( auto const& p : permutations )
-   //{
-   //   PrintDecisionsStepByStep( p );
-   //   std::cout << "-----------------------------" << std::endl;
-   //}  
+   auto permutations = GetAllDecisionPermutations( 3 );
+   for( auto& p : permutations )
+   {
+      for( auto decision : p )
+      {
+         std::cout << Decision2Str( decision ) << " ";
+      }
+      std::cout << std::endl;
+   }
+
+   std::cout << "############################" << std::endl;
+   
+   // all permutations step-by-step with pot
+   for( auto const& p : permutations )
+   {
+      PrintDecisionsStepByStep( p );
+      std::cout << "-----------------------------" << std::endl;
+   }  
 }
