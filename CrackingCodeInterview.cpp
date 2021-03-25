@@ -1723,9 +1723,9 @@ auto RemoveDecision( Container& cont, E_Decision dec )
    return cont.end();
 }
 
-void GetAllDecisionPermutations_Impl( std::list< std::list< E_Decision > >& result, int numberOfPlayers );
+void GetAllDecisionPermutations_Impl( std::list< std::vector< E_Decision > >& result, int numberOfPlayers );
 
-std::list< std::list< E_Decision > >
+std::list< std::vector< E_Decision > >
 GetAllDecisionPermutations( int numberOfPlayers )
 {
    if( numberOfPlayers < 2 )
@@ -1733,12 +1733,12 @@ GetAllDecisionPermutations( int numberOfPlayers )
       return {};
    }
 
-   std::list< std::list< E_Decision > > result{ { E_Decision::BET }, { E_Decision::CHECK } }; // adding two initial decisions
+   std::list< std::vector< E_Decision > > result{ { E_Decision::BET }, { E_Decision::CHECK } }; // adding two initial decisions
    GetAllDecisionPermutations_Impl( result, numberOfPlayers );
    return result;
 }
 
-void GetAllDecisionPermutations_Impl( std::list< std::list< E_Decision > >& result, int numberOfPlayers )
+void GetAllDecisionPermutations_Impl( std::list< std::vector< E_Decision > >& result, int numberOfPlayers )
 {
    auto first = result.begin();   
    while( first != result.end() )
