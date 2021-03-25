@@ -1725,6 +1725,12 @@ auto RemoveDecision( Container& cont, E_Decision dec )
 
 void GetAllDecisionPermutations_Impl( std::list< std::vector< E_Decision > >& result, int numberOfPlayers );
 
+template< class Container >
+void Reserve( Container& c, int numberOfPlayers )
+{
+   c.reserve( 3 * numberOfPlayers - 1 );
+}
+
 std::list< std::vector< E_Decision > >
 GetAllDecisionPermutations( int numberOfPlayers )
 {
@@ -1733,7 +1739,14 @@ GetAllDecisionPermutations( int numberOfPlayers )
       return {};
    }
 
-   std::list< std::vector< E_Decision > > result{ { E_Decision::BET }, { E_Decision::CHECK } }; // adding two initial decisions
+   std::vector< E_Decision > bet, check;
+   Reserve( bet, numberOfPlayers );
+   Reserve( check, numberOfPlayers );
+
+   bet.emplace_back( E_Decision::BET );
+   check.emplace_back( E_Decision::CHECK );
+   
+   std::list< std::vector< E_Decision > > result{ bet, check }; // adding two initial decisions
    GetAllDecisionPermutations_Impl( result, numberOfPlayers );
    return result;
 }
@@ -1860,12 +1873,12 @@ int main()
    durationCollection.reserve( size );
    for( int i = 0; i < size; ++i )
    {
-      auto [permutations, duration] = ExecutionDurationCheck( GetAllDecisionPermutations, 4 );
+      auto [permutations, duration] = ExecutionDurationCheck( GetAllDecisionPermutations, 7 );
       std::cout << duration << std::endl;
       durationCollection.push_back( duration );
    }
    std::cout << "Median time for " << size << " executions is " << static_cast< long long >( ArrayMedian( durationCollection ) ) << std::endl;
-
+   std::cout << "Average time for " << size << " executions is " << std::accumulate( durationCollection.begin(), durationCollection.end(), 0 ) / durationCollection.size() << std::endl;
 
   //for( auto& p : permutations )
   //{
