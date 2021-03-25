@@ -1947,8 +1947,52 @@ constexpr int SummIntegersV2_structs( Args&& ... args )
    return (IsTargetType< Args >( args ).value + ...) ;
 }
 
+template< class ... Args  >
+int SummIntegersAnyCast( Args&& ... args )
+{
+   return ( ( std::is_same_v< int, Args > ? std::any_cast< int >( args ) : 0 ) + ... );
+}
+
+class Plus
+{
+public:
+   explicit Plus( int n = 0 )
+      : _n( n )
+   {}
+
+   Plus& operator+( Plus const& other )
+   {
+      _n += other._n;
+      return *this;
+   }
+
+   auto GetN() const { return _n; }
+
+private:
+   int _n = 0;
+};
+
+Plus operator+( Plus const& left, Plus const& right )
+{
+   return Plus( left.GetN() + right.GetN() );
+}
+
+std::ostream& operator<<( std::ostream& os, Plus const& p )
+{
+   os << p.GetN();
+   return os;
+}
+
+template< class T, class ... Args  >
+auto foo( Args&& ... args )
+{
+   return ( ( std::is_same_v< T, Args > ? std::any_cast< T >( args ) : T() ) + ... );
+}
+
 
 int main()
 {
-   std::cout << SummIntegersV2_structs("bla", 1, 2, 3, 4, "bla", 5 ) << "\n";
+   using namespace std::string_literals;
+   std::cout << SummTs< Plus >("bla"s, 1, Plus( 2 ), Plus( 3 ), 4, "bla"s, 5 ) << "\n";
+   //std::cout << SummIntegersAnyCast("bla"s, "bla"s) << "\n";
 }
