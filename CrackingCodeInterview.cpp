@@ -1654,12 +1654,13 @@ public:
 public:
    void PushBack( E_Decision d ) 
    { 
-      push_back( d );
+      emplace_back( d );
       if( ( _hasRaise == false ) && ( d == E_Decision::RAISE ) )
       {
          _hasRaise = true;
       }
    }
+   E_Decision Back() const { return back(); }
    bool HasRaise() const { return _hasRaise; }
 
 private:
@@ -1827,6 +1828,101 @@ void GetAllDecisionPermutations_Impl( std::list< std::vector< E_Decision > >& re
          sequence.push_back( late );
       }
    }
+}
+
+namespace draft
+{
+std::list < E_Decision > GetNextDecisions( E_Decision decision, bool includeRaise )
+{
+   switch( decision )
+   {
+   case E_Decision::BET:
+   case E_Decision::CALL:
+   case E_Decision::FOLD:
+   {
+      if( includeRaise )
+      {
+         return { E_Decision::CALL, E_Decision::FOLD, E_Decision::RAISE };
+      }
+      else
+      { 
+         return { E_Decision::CALL, E_Decision::FOLD };
+      }
+   }
+      break;
+
+   case E_Decision::CHECK:
+      return { E_Decision::BET, E_Decision::CHECK };
+      break;
+
+   case E_Decision::RAISE:
+      return { E_Decision::CALL, E_Decision::FOLD };
+      break;
+   }
+
+   return {};
+}
+
+void GetAllDecisionPermutations_Impl( std::list< DecisionSequence >& result, int numberOfPlayers );
+
+std::list< DecisionSequence >
+GetAllDecisionPermutations( int numberOfPlayers )
+{
+   if( numberOfPlayers < 2 )
+   {
+      return {};
+   }
+
+   DecisionSequence bet( numberOfPlayers ), check( numberOfPlayers );
+
+   bet.PushBack( E_Decision::BET );
+   check.PushBack( E_Decision::CHECK );
+
+   std::list< DecisionSequence > result{ bet, check }; // adding two initial decisions
+   GetAllDecisionPermutations_Impl( result, numberOfPlayers );
+   return result;
+}
+
+void GetAllDecisionPermutations_Impl( std::list< DecisionSequence >& result, int numberOfPlayers )
+{
+   auto first = result.begin();
+   while( first != result.end() )
+   {
+      auto& sequence = *first;
+      if( IsCompletePermutation( sequence, numberOfPlayers ) )
+      {
+         ++first;
+      }
+      else
+      {
+         auto nextPossibleDecisions = GetNextDecisions( sequence.Back(), !sequence.HasRaise() );
+
+         // removing front before making list duplicates and 
+         // saving it for later addition to the list
+         auto late = nextPossibleDecisions.front();
+         nextPossibleDecisions.pop_front();
+
+         // duplicates creation
+         auto const dublicates2add = nextPossibleDecisions.size();
+         auto insertionPoint = first;
+         ++insertionPoint; // incrementing before loop, so inserting after first
+         for( auto i = 0; i < dublicates2add; ++i ) // we change insertionPoint twice inside the body of loop
+         {
+            insertionPoint = result.insert( insertionPoint, sequence ); // 1st
+
+            auto& dub = *insertionPoint;
+            dub.PushBack( nextPossibleDecisions.front() );
+            nextPossibleDecisions.pop_front();
+
+            ++insertionPoint; // 2nd
+         }
+
+         // inserting saved item
+         sequence.PushBack( late );
+      }
+   }
+}
+
 }
 
 template< class Container >
