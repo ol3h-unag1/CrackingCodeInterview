@@ -1905,29 +1905,50 @@ void TestPoker()
 
 
 template< class T >
-int bar( T&& t )
+int SummIntegers_helper( T&& t )
 {
    return 0;
 }
 
-int bar( int i )
+int SummIntegers_helper( int i )
 {
    return i;
 }
 
-int foo()
+int SummIntegers()
 {
    return 0;
 }
 
 template< class T, class ... Args >
-int foo( T&& t, Args&& ... args )
+int SummIntegers( T&& t, Args&& ... args )
 {
-   return bar( t ) + foo( args... );
+   return SummIntegers_helper( t ) + SummIntegers( args... );
+}
+
+
+template< class T >
+struct IsTargetType
+{
+   IsTargetType( T& t ){}
+   int value = 0;
+};
+
+template<>
+struct IsTargetType< int >
+{
+   IsTargetType( int i ) : value( i ){}
+   int value = 0;
+};
+
+template< class ... Args >
+constexpr int SummIntegersV2_structs( Args&& ... args )
+{
+   return (IsTargetType< Args >( args ).value + ...) ;
 }
 
 
 int main()
 {
-   std::cout << foo( "bla", 1, 2, 3, 4, "bla", 5 ) << "\n";
+   std::cout << SummIntegersV2_structs("bla", 1, 2, 3, 4, "bla", 5 ) << "\n";
 }
