@@ -1854,22 +1854,34 @@ int main()
 
 
   // permutations w/o pot
-  auto permutations = GetAllDecisionPermutations( 3 );
-  for( auto p : permutations )
-  {
-     for( auto decision : p )
-     {
-        std::cout << Decision2Str( decision ) << " ";
-     }
-     std::cout << std::endl;
-  }
-
-   std::cout << "############################" << std::endl;
-   
-   // all permutations step-by-step with pot
-   for( auto const& p : permutations )
+  
+   std::size_t size = 11;
+   std::vector< long long > durationCollection;
+   durationCollection.reserve( size );
+   for( int i = 0; i < size; ++i )
    {
-      PrintDecisionsStepByStep( p );
-      std::cout << "-----------------------------" << std::endl;
-   }  
+      auto [permutations, duration] = ExecutionDurationCheck( GetAllDecisionPermutations, 4 );
+      std::cout << duration << std::endl;
+      durationCollection.push_back( duration );
+   }
+   std::cout << "Median time for " << size << " executions is " << static_cast< long long >( ArrayMedian( durationCollection ) ) << std::endl;
+
+
+  //for( auto p : permutations )
+  //{
+  //   for( auto decision : p )
+  //   {
+  //      std::cout << Decision2Str( decision ) << " ";
+  //   }
+  //   std::cout << std::endl;
+  //}
+
+   //std::cout << "############################" << std::endl;
+   //
+   //// all permutations step-by-step with pot
+   //for( auto const& p : permutations )
+   //{
+   //   PrintDecisionsStepByStep( p );
+   //   std::cout << "-----------------------------" << std::endl;
+   //}  
 }
