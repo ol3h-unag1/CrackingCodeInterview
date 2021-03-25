@@ -1565,7 +1565,7 @@ auto Gather( Iter first, Iter last, Iter gatherPoint, Selector s )
 #include <list>
 #include <vector>
 
-//"You are playing a Texas Holdem poker game with two other players in flop street. There are 3 players in total. Each player can CHECK, BET,  FOLD, CALL (no raises).
+//You are playing a Texas Holdem poker game with two other players in flop street. There are 3 players in total. Each player can CHECK, BET,  FOLD, CALL (no raises).
 //
 //Print out all possible sequence lines for the current street( round ).
 //
@@ -1745,6 +1745,8 @@ std::list < E_Decision > GetNextDecisions( E_Decision decision, bool includeRais
 
 void GetAllDecisionPermutations_Impl( std::list< DecisionSequence >& result, int numberOfPlayers );
 
+void TestPoker();
+
 std::list< DecisionSequence >
 GetAllDecisionPermutations( int numberOfPlayers )
 {
@@ -1867,27 +1869,9 @@ void PrintDecisionsStepByStep( Container const& decisions, int pot = 60, int bet
    }
 }
 
-int main()
+void TestPoker()
 {
-   std::cout << std::boolalpha;
-   using namespace std::string_literals;
-
-  // permutations w/o pot
-  
-   std::size_t size = 11;
-   std::vector< long long > durationCollection;
-   durationCollection.reserve( size );
-   for( int i = 0; i < size; ++i )
-   {
-      auto [permutations, duration] = ExecutionDurationCheck( GetAllDecisionPermutations, 7 );
-      std::cout << duration << std::endl;
-      durationCollection.push_back( duration );
-   }
-   std::cout << "Median time for " << size << " executions is " << static_cast< long long >( ArrayMedian( durationCollection ) ) << std::endl;
-   std::cout << "Average time for " << size << " executions is " << std::accumulate( durationCollection.begin(), durationCollection.end(), 0 ) / durationCollection.size() << std::endl;
-
-   std::cout << "############################" << std::endl;
-
+   // permutations w/o pot
    auto permutations = GetAllDecisionPermutations( 3 );
    for( auto& p : permutations )
    {
@@ -1899,11 +1883,51 @@ int main()
    }
 
    std::cout << "############################" << std::endl;
-   
+
    // all permutations step-by-step with pot
    for( auto const& p : permutations )
    {
       PrintDecisionsStepByStep( p );
       std::cout << "-----------------------------" << std::endl;
-   }  
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+template< class T >
+int bar( T&& t )
+{
+   return 0;
+}
+
+int bar( int i )
+{
+   return i;
+}
+
+int foo()
+{
+   return 0;
+}
+
+template< class T, class ... Args >
+int foo( T&& t, Args&& ... args )
+{
+   return bar( t ) + foo( args... );
+}
+
+
+int main()
+{
+   std::cout << foo( "bla", 1, 2, 3, 4, "bla", 5 ) << "\n";
 }
