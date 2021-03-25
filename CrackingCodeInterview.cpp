@@ -1735,6 +1735,8 @@ std::list < E_Decision > GetNextDecisions( E_Decision decision )
    return {};
 }
 
+namespace old
+{
 template< class Container >
 bool IsCompletePermutation( Container const& decisions, int activePlayers )
 {
@@ -1748,12 +1750,12 @@ bool IsCompletePermutation( Container const& decisions, int activePlayers )
          stepsLeft = activePlayers - 1;
          break;
 
-      case E_Decision::CALL:   
-      case E_Decision::CHECK:  
+      case E_Decision::CALL:
+      case E_Decision::CHECK:
          --stepsLeft;
          break;
 
-      case E_Decision::FOLD:   
+      case E_Decision::FOLD:
          --stepsLeft;
          --activePlayers;
          break;
@@ -1803,7 +1805,7 @@ GetAllDecisionPermutations( int numberOfPlayers )
 
    bet.emplace_back( E_Decision::BET );
    check.emplace_back( E_Decision::CHECK );
-   
+
    std::list< std::vector< E_Decision > > result{ bet, check }; // adding two initial decisions
    GetAllDecisionPermutations_Impl( result, numberOfPlayers );
    return result;
@@ -1811,7 +1813,7 @@ GetAllDecisionPermutations( int numberOfPlayers )
 
 void GetAllDecisionPermutations_Impl( std::list< std::vector< E_Decision > >& result, int numberOfPlayers )
 {
-   auto first = result.begin();   
+   auto first = result.begin();
    while( first != result.end() )
    {
       auto& sequence = *first;
@@ -1822,7 +1824,7 @@ void GetAllDecisionPermutations_Impl( std::list< std::vector< E_Decision > >& re
       else
       {
          auto nextPossibleDecisions = GetNextDecisions( sequence.back() );
-         
+
          if( HasDecision( sequence, E_Decision::RAISE ) && HasDecision( nextPossibleDecisions, E_Decision::RAISE ) )
          {
             RemoveDecision( nextPossibleDecisions, E_Decision::RAISE );
@@ -1854,6 +1856,7 @@ void GetAllDecisionPermutations_Impl( std::list< std::vector< E_Decision > >& re
    }
 }
 
+} // end of namespace old 
 namespace draft
 {
 std::list < E_Decision > GetNextDecisions( E_Decision decision, bool includeRaise )
