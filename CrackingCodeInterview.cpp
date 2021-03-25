@@ -1867,7 +1867,7 @@ int main()
    std::cout << "Median time for " << size << " executions is " << static_cast< long long >( ArrayMedian( durationCollection ) ) << std::endl;
 
 
-  //for( auto p : permutations )
+  //for( auto& p : permutations )
   //{
   //   for( auto decision : p )
   //   {
