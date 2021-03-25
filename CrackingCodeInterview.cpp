@@ -1642,6 +1642,8 @@ private:
 public:
    explicit DecisionSequence( int numberOfPlayers )
       : _numberOfPlayers( numberOfPlayers  )
+      , _activePlayers( numberOfPlayers )
+      , _stepsLeft( numberOfPlayers )
    {
       // consider to throw if number of players is bad
       reserve( 3 * _numberOfPlayers - 1 );
@@ -1659,13 +1661,35 @@ public:
       {
          _hasRaise = true;
       }
+
+      switch( d )
+      {
+      case E_Decision::BET:
+      case E_Decision::RAISE:
+         _stepsLeft = _activePlayers - 1;
+         break;
+
+      case E_Decision::CALL:
+      case E_Decision::CHECK:
+         --_stepsLeft;
+         break;
+
+      case E_Decision::FOLD:
+         --_stepsLeft;
+         --_activePlayers;
+         break;
+      }
    }
+
    E_Decision Back() const { return back(); }
    bool HasRaise() const { return _hasRaise; }
+   bool IsComplete() const { return _stepsLeft == 0; }
 
 private:
    bool _hasRaise = false;
    int _numberOfPlayers = 0;
+   int _activePlayers = 0;
+   int _stepsLeft = 0;
 };
 
 std::string Decision2Str( E_Decision d )
@@ -1889,7 +1913,7 @@ void GetAllDecisionPermutations_Impl( std::list< DecisionSequence >& result, int
    while( first != result.end() )
    {
       auto& sequence = *first;
-      if( IsCompletePermutation( sequence, numberOfPlayers ) )
+      if( sequence.IsComplete() )
       {
          ++first;
       }
