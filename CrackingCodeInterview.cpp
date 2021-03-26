@@ -1994,12 +1994,65 @@ auto SummTs( Args&& ... args )
       + ... );
 }
 
+float floorBits( float val )
+{
+   const int32_t rep = *reinterpret_cast< int32_t* >( &val );
+   int32_t expon = ( ( rep & 0x7F800000 ) >> 23 ) - 127; // get amount of shifts right
+   if( expon < 0 ) // absolute less 0
+      return 0.f;
+   int32_t mantissMask = ~( ~0xFF800000 >> expon ); // mantissa mask to shift right to hide fractional bits
+   int32_t result = rep & mantissMask; // lets mask right side
+   return *reinterpret_cast< float* >( &result );
+}
 
+float floorInt( float val )
+{
+   return static_cast< int >( val );
+}
+
+void foo( std::vector< float >& vec )
+{
+   for( auto& f : vec )
+   {
+      f = floorBits( f );
+   }
+}
+
+void bar( std::vector< float >& vec )
+{
+   for( auto& f : vec )
+   {
+      f = floorInt( f );
+   }
+}
 
 
 int main()
 {
+   std::cout << std::boolalpha;
    using namespace std::string_literals;
-   std::cout << SummTs< Plus >("bla"s, 1, Plus( 2 ), Plus( 3 ), 4, "bla"s, 5 ) << "\n";
-   //std::cout << SummIntegersAnyCast("bla"s, "bla"s) << "\n";
+
+   std::vector< float > numbers1( 1024 * 1024 );
+
+   std::cout << "Generating..." << std::endl;
+   std::generate( numbers1.begin(), numbers1.end(), []() 
+      { 
+         auto ranInt = RandomInt( std::numeric_limits< int >::min(), std::numeric_limits< int >::max() );
+         auto ranDiv = RandomInt( 2, 10 );
+
+         float f = ranInt;
+         f += f / ranDiv;
+         return f;
+      } 
+   );
+
+   auto numbers2 = numbers1;
+
+   std::cout << "Flooring..." << std::endl;
+
+   auto dur1 = ExecutionDurationCheck( foo, numbers1 );
+   auto dur2 = ExecutionDurationCheck( bar, numbers2 );
+
+   std::cout << dur1 << std::endl;
+   std::cout << dur2 << std::endl;
 }
