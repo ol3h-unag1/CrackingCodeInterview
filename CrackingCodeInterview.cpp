@@ -1892,18 +1892,6 @@ void TestPoker()
    }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 template< class T >
 int SummIntegers_helper( T&& t )
 {
