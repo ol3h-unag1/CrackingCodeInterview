@@ -1983,11 +1983,30 @@ std::ostream& operator<<( std::ostream& os, Plus const& p )
    return os;
 }
 
-template< class T, class ... Args  >
-auto foo( Args&& ... args )
+//template< class T, class ... Args  >
+//auto SummTs( Args&& ... args )
+//{
+//   return ( ( std::is_same_v< T, Args > 
+//              ? std::any_cast< T >( args ) 
+//              : T() ) + ... );
+//}
+
+template< class T >
+T any_cast( void* p )
 {
-   return ( ( std::is_same_v< T, Args > ? std::any_cast< T >( args ) : T() ) + ... );
+   return *static_cast< T* >( p );
 }
+
+template< class T, class ... Args  >
+auto SummTs( Args&& ... args )
+{
+   return ( ( std::is_same_v< T, Args >
+      ? any_cast< T >( &args )
+      : T() ) 
+      + ... );
+}
+
+
 
 
 int main()
