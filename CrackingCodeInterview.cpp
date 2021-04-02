@@ -1986,7 +1986,7 @@ std::ostream& operator<<( std::ostream& os, Plus const& p )
 //}
 
 template< class T, class U >
-T& any_cast( U&& u )
+T& TOrDefaultT( U&& u )
 {
    if constexpr( std::is_same_v< std::decay_t< U >, T > )
    {
@@ -2002,10 +2002,7 @@ T& any_cast( U&& u )
 template< class T, class ... Args  >
 auto SummTs( Args&& ... args )
 {
-   return ( ( std::is_same_v< T, Args >
-      ? any_cast< T >( args )
-      : T() ) 
-      + ... );
+   return ( TOrDefaultT< T >( args ) + ... );
 }
 
 //float floorBits( float val )
