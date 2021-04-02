@@ -1788,7 +1788,7 @@ void GetAllDecisionPermutations_Impl( std::list< DecisionSequence >& result, int
          auto const dublicates2add = nextPossibleDecisions.size();
          auto insertionPoint = first;
          ++insertionPoint; // incrementing before loop, so inserting after first
-         for( auto i = 0; i < dublicates2add; ++i ) // we change insertionPoint twice inside the body of loop
+         for( auto i = 0u; i < dublicates2add; ++i ) // we change insertionPoint twice inside the body of loop
          {
             insertionPoint = result.insert( insertionPoint, sequence ); // 1st
 
@@ -1979,80 +1979,66 @@ std::ostream& operator<<( std::ostream& os, Plus const& p )
 //              : T() ) + ... );
 //}
 
-template< class T >
-T any_cast( void* p )
+//template< class T >
+//T any_cast( void* p )
+//{
+//   return *static_cast< T* >( p );
+//}
+
+template< class T, class U >
+T& any_cast( U&& u )
 {
-   return *static_cast< T* >( p );
+   if constexpr( std::is_same_v< std::decay_t< U >, T > )
+   {
+      return u;
+   }
+   else
+   {
+      static T t;
+      return t;
+   }
 }
 
 template< class T, class ... Args  >
 auto SummTs( Args&& ... args )
 {
    return ( ( std::is_same_v< T, Args >
-      ? any_cast< T >( &args )
+      ? any_cast< T >( args )
       : T() ) 
       + ... );
 }
 
-float floorBits( float val )
-{
-   const int32_t rep = *reinterpret_cast< int32_t* >( &val );
-   int32_t expon = ( ( rep & 0x7F800000 ) >> 23 ) - 127; // get amount of shifts right
-   if( expon < 0 ) // absolute less 0
-      return 0.f;
-   int32_t mantissMask = ~( ~0xFF800000 >> expon ); // mantissa mask to shift right to hide fractional bits
-   int32_t result = rep & mantissMask; // lets mask right side
-   return *reinterpret_cast< float* >( &result );
-}
-
-float floorInt( float val )
-{
-   return static_cast< int >( val );
-}
-
-void foo( std::vector< float >& vec )
-{
-   for( auto& f : vec )
-   {
-      f = floorBits( f );
-   }
-}
-
-void bar( std::vector< float >& vec )
-{
-   for( auto& f : vec )
-   {
-      f = floorInt( f );
-   }
-}
+//float floorBits( float val )
+//{
+//   const int32_t rep = *reinterpret_cast< int32_t* >( &val );
+//   int32_t expon = ( ( rep & 0x7F800000 ) >> 23 ) - 127; // get amount of shifts right
+//   if( expon < 0 ) // absolute less 0
+//      return 0.f;
+//   int32_t mantissMask = ~( ~0xFF800000 >> expon ); // mantissa mask to shift right to hide fractional bits
+//   int32_t result = rep & mantissMask; // lets mask right side
+//   return *reinterpret_cast< float* >( &result );
+//}
+//
+//float floorInt( float val )
+//{
+//   return static_cast< int >( val );
+//}
 
 
 int main()
 {
    std::cout << std::boolalpha;
    using namespace std::string_literals;
+   auto result = SummTs< int >( "foo", "bar", 1, 2, 3, 3.4, std::string( "Hi" ) );
+   std::cout << result << std::endl;
 
-   std::vector< float > numbers1( 1024 * 1024 );
+   //char const arr[] = "Hello";
 
-   std::cout << "Generating..." << std::endl;
-   std::generate( numbers1.begin(), numbers1.end(), []() 
-      { 
-         auto ranInt = RandomInt( std::numeric_limits< int >::min(), std::numeric_limits< int >::max() );
-         auto ranDiv = RandomInt( 2, 10 );
+   //auto p_arr = static_cast< std::decay_t< decltype( arr ) > >( arr);
 
-         float f = ranInt;
-         f += f / ranDiv;
-         return f;
-      } 
-   );
+   //auto p_v = static_cast< void* >( const_cast< char*>( p_arr ) );
 
-   auto numbers2 = numbers1;
+   //std::cout << std::is_const_v< decltype( p_arr ) > << std::endl;
 
-   std::cout << "Flooring..." << std::endl;
 
-   auto dur1 = ExecutionDurationCheck( foo, numbers1 );
-   auto dur2 = ExecutionDurationCheck( bar, numbers2 );
-
-   std::cout << dur1 << std::endl;
-   std::cout << dur2 << std::endl;
 }
